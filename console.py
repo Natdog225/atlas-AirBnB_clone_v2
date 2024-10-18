@@ -137,17 +137,17 @@ class HBNBCommand(cmd.Cmd):
                         value = float(value)
                     except ValueError:
                         continue
-                    else:
-                        try:
-                            value = int(value)
-                        except ValueError:
-                            continue
-                    kwargs[key] = value
-                new_instance = HBNBCommand.classes[class_name](**kwargs)
-            else:
-                new_instance = HBNBCommand.classes[class_name]()
-                new_instance.save()
-                print(new_instance.id)
+                else:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        continue
+                kwargs[key] = value
+            new_instance = HBNBCommand.classes[class_name](**kwargs)
+        else:
+            new_instance = HBNBCommand.classes[class_name]()
+        new_instance.save()
+        print(new_instance.id)
 
     def help_show(self):
         """ Help information for the show command """
