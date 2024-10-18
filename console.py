@@ -147,6 +147,8 @@ class HBNBCommand(cmd.Cmd):
                 kwargs[key] = value
                 kwargs['updated_at'] = datetime.now().isoformat(timespec='microseconds')
                 kwargs['created_at'] = datetime.now().isoformat(timespec='microseconds')
+                if '__class__' in kwargs:
+                    del kwargs['__class__']
             new_instance = HBNBCommand.classes[class_name](**kwargs)
         else:
             new_instance = HBNBCommand.classes[class_name]()
