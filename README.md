@@ -13,6 +13,7 @@ This repository contains the initial stage of a student project to build a clone
 * Nathan Wilson <Nathaniel.wilson@atlasschool.com>
 * John Wilson <John.wilson@atlasschool.com>
 
+
 | 1: Pep8 | N/A | All code is pep8 compliant|
 | 2: Unit Testing | [/tests](https://github.com/justinmajetich/AirBnB_clone/tree/dev/tests) | All class-defining modules are unittested |
 | 3. Make BaseModel | [/models/base_model.py](https://github.com/justinmajetich/AirBnB_clone/blob/dev/models/base_model.py) | Defines a parent class to be inherited by all model classes|
