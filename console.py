@@ -131,7 +131,8 @@ class HBNBCommand(cmd.Cmd):
         if len(arg_list) > 1:
             kwargs = {}
             for arg in arg_list[1:]:
-                key, value = arg.split("=")
+                if "=" in arg:
+                    key, value = arg.split("=")
                 if value.startswith('"') and value.endswith('"'):
                     value = value[1:-1].replace("_", " ")
                 elif "." in value:
