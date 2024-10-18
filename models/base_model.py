@@ -38,8 +38,8 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
-        models.storage.save()
         self.updated_at = datetime.now(timezone.utc)
+        models.storage.save()
         
     def to_dict(self):
         """Convert instance into dict format"""
