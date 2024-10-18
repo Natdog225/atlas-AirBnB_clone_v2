@@ -10,6 +10,8 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from datetime import datetime, timezone
+
 
 
 class HBNBCommand(cmd.Cmd):
@@ -143,6 +145,8 @@ class HBNBCommand(cmd.Cmd):
                     except ValueError:
                         continue
                 kwargs[key] = value
+                kwargs['updated_at'] = datetime.now().isoformat(timespec='microseconds')
+                kwargs['created_at'] = datetime.now().isoformat(timespec='microseconds')
             new_instance = HBNBCommand.classes[class_name](**kwargs)
         else:
             new_instance = HBNBCommand.classes[class_name]()
