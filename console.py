@@ -152,8 +152,8 @@ class HBNBCommand(cmd.Cmd):
                 new_instance = HBNBCommand.classes[class_name](**kwargs)
             else:
                 new_instance = HBNBCommand.classes[class_name]()
-        new_instance.save()
-        print(new_instance.id)
+            new_instance.save()
+            print(new_instance.id)
 
     def help_show(self):
         """ Help information for the show command """
