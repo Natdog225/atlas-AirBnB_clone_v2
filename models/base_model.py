@@ -19,8 +19,8 @@ class BaseModel:
         """Instatntiates a new model"""
         if not kwargs:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+            self.created_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(timezone.utc)
             models.storage.new(self)
         else:
             kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
