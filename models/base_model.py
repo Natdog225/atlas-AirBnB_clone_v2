@@ -8,7 +8,6 @@ from sqlalchemy import Column, Integer, String, DateTime
 
 Base = declarative_base()
 
-
 class BaseModel:
     """A base class for all hbnb models"""
     id = Column(String(60), primary_key=True, nullable=False)
@@ -29,10 +28,10 @@ class BaseModel:
                                                      '%Y-%m-%dT%H:%M:%S.%f')
             if not isinstance(kwargs['updated_at'], datetime):
                 kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f%z')
+                                                         '%Y-%m-%dT%H:%M:%S.%f%z')
             if not isinstance(kwargs['created_at'], datetime):
                 kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f%z')
+                                                         '%Y-%m-%dT%H:%M:%S.%f%z')
             if '__class__' in kwargs:
                 del kwargs['__class__']
             self.__dict__.update(kwargs)

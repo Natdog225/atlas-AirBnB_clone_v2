@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-from datetime import datetime
+import os
 import models
 
 class FileStorage:
@@ -27,24 +27,32 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as f:
-            temp = {}
-            for key, val in self.all().items():
-                temp[key] = val.to_dict()
-            json.dump(temp, f)
+        try:
+            with open(FileStorage.__file_path, 'w') as f:
+                temp = {}
+                for key, val in self.all().items():
+                    temp[key] = val.to_dict()
+                json.dump(temp, f)
+            print(f"Data saved to {self.__file_path}")
+        except Exception as e:
+            print(f"Error saving data: {str(e)}")
 
     def reload(self):
         """Loads storage dictionary from file"""
         try:
-            with open(FileStorage.__file_path, 'r') as f:
-                temp = json.load(f)
-                for key, val in temp.items():
-                    obj_cls_name, obj_id = key.split('.')
-                    obj_cls = globals()[obj_cls_name]
-                    obj = obj_cls(**val)
-                    self.new(obj)
-        except FileNotFoundError:
-            pass
+            if os.path.exists(self.__file_path):
+                with open(self.__file_path, 'r') as f:
+                    temp = json.load(f)
+                    for key, val in temp.items():
+                        obj_cls_name, obj_id = key.split('.')
+                        obj_cls = globals()[obj_cls_name]
+                        obj = obj_cls(**val)
+                        self.new(obj)
+                print(f"Data loaded from {self.__file_path}")
+            else:
+                print(f"No file found at {self.__file_path}")
+        except Exception as e:
+            print(f"Error loading data: {str(e)}")
 
     def delete(self, obj=None):
         """Deletes an object from the storage dictionary"""
