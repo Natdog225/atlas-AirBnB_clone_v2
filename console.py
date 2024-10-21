@@ -12,7 +12,9 @@ import shlex
 import re
 import json
 import ast
-from models.storage import storage
+from models import storage
+
+print(type(storage))
 
 class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) '

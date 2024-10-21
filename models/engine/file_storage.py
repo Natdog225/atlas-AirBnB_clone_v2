@@ -4,6 +4,7 @@ import json
 import os
 import models
 
+
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
     __file_path = 'file.json'
@@ -44,6 +45,7 @@ class FileStorage:
                         obj_cls = globals()[obj_cls_name]
                         obj = obj_cls(**val)
                         self.new(obj)
+                        print(val)
                 print(f"Data loaded from {self.__file_path}")
             else:
                 print(f"No file found at {self.__file_path}")
@@ -59,4 +61,4 @@ class FileStorage:
                 print(f"Deleted {key} from storage")
                 self.save()
 
-models.storage = FileStorage()
+#models.storage = FileStorage()
