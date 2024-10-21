@@ -7,8 +7,6 @@ from sqlalchemy import Column, Integer, String, DateTime
 from models import storage
 import models
 
-print(id(storage))
-
 Base = declarative_base()
 
 class BaseModel:

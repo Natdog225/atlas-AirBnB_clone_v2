@@ -53,7 +53,6 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                    # Include timezone information in the format string
                     val["created_at"] = datetime.strptime(val["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
                     val["updated_at"] = datetime.strptime(val["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
                     self.new(eval(val["__class__"])(**val))
