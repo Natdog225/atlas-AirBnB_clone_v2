@@ -22,8 +22,10 @@ class FileStorage:
             return filtered_objects
 
     def new(self, obj):
-        """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        obj.id = str(uuid.uuid4())
+        self.all_objects.append(obj)
+        return obj
+
 
     def save(self):
         """Saves storage dictionary to file"""
