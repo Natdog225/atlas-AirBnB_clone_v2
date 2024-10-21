@@ -35,6 +35,7 @@ class BaseModel:
             if '__class__' in kwargs:
                 del kwargs['__class__']
             self.__dict__.update(kwargs)
+            print(f"Loaded existing {type(self).__name__} with id {self.id}")
 
     def __str__(self):
         """Returns a string representation of the instance"""
@@ -44,6 +45,7 @@ class BaseModel:
     def save(self):
         """Updates updated_at with current time when instance is changed"""
         self.updated_at = datetime.now(timezone.utc)
+        print(f"Saving {type(self).__name__} with id {self.id}")
         models.storage.save()
         
     def to_dict(self):

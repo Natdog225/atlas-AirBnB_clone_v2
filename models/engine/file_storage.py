@@ -11,27 +11,22 @@ class FileStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        if cls is None:
-            return FileStorage.__objects
-        else:
-            filtered_objects = {}
-            for key, value in FileStorage.__objects.items():
-                if isinstance(value, cls):
-                    filtered_objects[key] = value
-            return filtered_objects
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
         self.all().update({obj.__class__.__name__ + '.' + obj.id: obj})
-        self.save()
+        print(f"Added {obj.__class__.__name__} with id {obj.id} to storage")
 
     def save(self):
         """Saves storage dictionary to file"""
         try:
+            temp = {}
+            for key, val in self.all().items():
+                print(f"Converting {key} to dict")
+                temp[key] = val.to_dict()
+            
             with open(FileStorage.__file_path, 'w') as f:
-                temp = {}
-                for key, val in self.all().items():
-                    temp[key] = val.to_dict()
                 json.dump(temp, f)
             print(f"Data saved to {self.__file_path}")
         except Exception as e:
@@ -43,6 +38,7 @@ class FileStorage:
             if os.path.exists(self.__file_path):
                 with open(self.__file_path, 'r') as f:
                     temp = json.load(f)
+                    print(f"Loaded {len(temp)} objects from file")
                     for key, val in temp.items():
                         obj_cls_name, obj_id = key.split('.')
                         obj_cls = globals()[obj_cls_name]
@@ -60,6 +56,7 @@ class FileStorage:
             key = "{}.{}".format(type(obj).__name__, obj.id)
             if key in self.__objects:
                 del self.__objects[key]
+                print(f"Deleted {key} from storage")
                 self.save()
 
 models.storage = FileStorage()
