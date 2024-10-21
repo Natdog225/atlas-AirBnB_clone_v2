@@ -14,7 +14,6 @@ import json
 import ast
 from models import storage
 
-print(type(storage))
 
 class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) '
