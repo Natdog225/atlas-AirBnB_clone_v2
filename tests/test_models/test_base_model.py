@@ -1,15 +1,15 @@
 #!/usr/bin/python3
-""" """
+"""Unit test for BaseModel class"""
+import os
 from models.base_model import BaseModel
 import unittest
-import datetime
+from datetime import datetime
 from uuid import UUID
-import json
-import os
+from models.engine.file_storage import FileStorage
 
 
 class test_basemodel(unittest.TestCase):
-    """ """
+    """Test cases for the BaseModel """
 
     def __init__(self, *args, **kwargs):
         """ """
@@ -18,14 +18,17 @@ class test_basemodel(unittest.TestCase):
         self.value = BaseModel
 
     def setUp(self):
-        """ """
+        """Set up testing methods """
+        self.storage = FileStorage()
+        self.base_obj = BaseModel()
         pass
 
     def tearDown(self):
         try:
-            os.remove('file.json')
-        except:
-            pass
+            os.remove(self.file.json)
+        except: FileNotFoundError
+        pass
+        self.storage.all().clear()
 
     def test_default(self):
         """ """
