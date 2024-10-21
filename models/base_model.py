@@ -45,10 +45,8 @@ class BaseModel:
     def save(self):
         """Updates updated_at with current time when instance is changed"""
         import models
-        cls_name = self.__class__.__name__
-        if cls_name not in storage.all():
-            storage.all()[cls_name] = []
-            storage.all()[cls_name].append(self.to_dict())
+        self.updated_at = datetime.now(timezone.utc)
+        models.storage.save()
         
     def to_dict(self):
         """Convert instance into dict format"""

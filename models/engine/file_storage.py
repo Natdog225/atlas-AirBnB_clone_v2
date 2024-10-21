@@ -29,11 +29,15 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
+        print("Saving data to file...")
         temp = {}
         for key, val in self.all_objects.items():
             temp[key] = val.to_dict()
-        with open(self.file_path, 'w') as f:
-            json.dump(temp, f)
+        try:
+            with open(self.file_path, 'w') as f:
+                json.dump(temp, f)
+        except Exception as e:
+            print(f"Error saving to file: {str(e)}")
 
     def reload(self):
         """Loads storage dictionary from file"""
@@ -41,14 +45,16 @@ class FileStorage:
             with open(self.file_path, 'r') as f:
                 temp = json.load(f)
             for key, val in temp.items():
-                val["created_at"] = datetime.strptime(val["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-                val["updated_at"] = datetime.strptime(val["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
                 obj_class = eval(key.split('.')[0])
                 obj_id = key.split('.')[-1]
                 obj = obj_class(**val)
                 self.new(obj)
         except FileNotFoundError:
             pass
+        except json.JSONDecodeError:
+            print("Warning: file.json is empty or contains invalid JSON.")
+        except Exception as e:
+            print(f"Error reloading from file: {str(e)}")
 
     def delete(self, obj=None):
         """Deletes an object from the storage dictionary"""
@@ -60,4 +66,4 @@ class FileStorage:
 
     def close(self):
         """Closes the FileStorage"""
-        pass
+        self.reload()

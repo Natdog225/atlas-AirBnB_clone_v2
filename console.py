@@ -41,6 +41,7 @@ class HBNBCommand(cmd.Cmd):
             return False
         instance = eval(args[0])()
         storage.new(instance)
+        print("Saving instance...")
         instance.save()
         print(instance.id)
 
