@@ -12,6 +12,7 @@ import shlex
 import re
 import json
 import ast
+from models.storage import storage
 
 class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) '
@@ -47,16 +48,21 @@ class HBNBCommand(cmd.Cmd):
         if len(args) == 0:
             print("** class name missing **")
             return False
-        if args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
-            print("** class doesn't exist **")
-            return False
         if len(args) == 1:
             print("** instance id missing **")
             return False
         try:
-            print(eval(args[0]).all()[args[0] + '.' + args[1]])
-        except KeyError:
-            print("** no instance found **")
+            obj_cls_str, obj_id = args[0], args[1]
+            obj_cls = eval(obj_cls_str)
+            storage = storage.all()
+            obj_key = f"{obj_cls_str}.{obj_id}"
+            if obj_key not in storage:
+                print("** no instance found **")
+                return
+            obj = storage[obj_key]
+            print(str(obj))
+        except Exception as e:
+            print(f"Error: {str(e)}")
 
     def do_destroy(self, arg):
         """Deletes an instance based on the class name and id (save the change into the JSON file)."""
@@ -71,15 +77,22 @@ class HBNBCommand(cmd.Cmd):
             print("** instance id missing **")
             return False
         try:
-            del eval(args[0]).all()[args[0] + '.' + args[1]]
-            models.storage.save()
-        except KeyError:
-            print("** no instance found **")
+            obj_cls_str, obj_id = args[0], args[1]
+            obj_cls = eval(obj_cls_str)
+            storage = storage.all()
+            obj_key = f"{obj_cls_str}.{obj_id}"
+            if obj_key not in storage:
+                print("** no instance found **")
+                return
+            del storage[obj_key]
+            storage.save()
+        except Exception as e:
+            print(f"Error: {str(e)}")
 
     def do_all(self, arg):
         """Prints all string representation of all instances based or not on the class name."""
         args = shlex.split(arg)
-        objects = models.storage.all()
+        objects = storage.all()
         if len(args) > 0 and args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
             print("** class doesn't exist **")
             return False
@@ -88,32 +101,18 @@ class HBNBCommand(cmd.Cmd):
         else:
             print([str(obj) for obj in objects.values()])
 
-    def do_update(self, arg):
-        """Updates an instance based on the class name and id by adding or updating attribute (save the change into the JSON file)."""
-        args = shlex.split(arg)
-        if len(args) == 0:
-            print("** class name missing **")
-            return False
-        if args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
-            print("** class doesn't exist **")
-            return False
-        if len(args) == 1:
-            print("** instance id missing **")
-            return False
-        if len(args) == 2:
-            print("** attribute name missing **")
-            return False
-        if len(args) == 3:
-            print("** value missing **")
-            return False
-        obj_cls_str, obj_id, attr_name, attr_value = args
-        obj = eval(obj_cls_str).all().get(f"{obj_cls_str}.{obj_id}", None)
-        if obj is None:
-            print("** no instance found **")
-            return False
-        setattr(obj, attr_name, try_parse(attr_value))
-        obj.save()
-        models.storage.save()
+    def default(self, arg):
+        """Default behavior for unknown commands"""
+        try:
+            func_name, args = arg.split('.', 1)
+            if func_name in ['create', 'show', 'destroy']:
+                getattr(self, f'do_{func_name}')(args)
+            else:
+                raise AttributeError
+        except ValueError:
+            print(f"*** Unknown syntax: {arg}")
+        except AttributeError:
+            print(f"*** Unknown command: {arg}")
 
 def try_parse(json_str):
     try:
