@@ -3,6 +3,7 @@
 import json
 from datetime import datetime
 
+storage = {}
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
