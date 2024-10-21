@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 import uuid
-from models.base_model import BaseModel
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
