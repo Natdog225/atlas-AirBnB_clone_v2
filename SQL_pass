@@ -1,0 +1,8 @@
+root
+NewPassword123!
+
+host: localhost
+port: 3302
+
+Use this to log into SQL database:
+mysql -u root -p
