@@ -44,8 +44,8 @@ class FileStorage:
                         obj_cls_name, obj_id = key.split('.')
                         obj_cls = globals()[obj_cls_name]
                         obj = obj_cls(**val)
-                        self.new(obj)
                         print(val)
+                        self.new(obj)
                 print(f"Data loaded from {self.__file_path}")
             else:
                 print(f"No file found at {self.__file_path}")
