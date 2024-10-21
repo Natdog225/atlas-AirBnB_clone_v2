@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-import os
-import models
+from datetime import datetime
 
 
 class FileStorage:
@@ -12,45 +11,54 @@ class FileStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+        if cls is None:
+            return FileStorage.__objects
+        else:
+            filtered_objects = {}
+            for key, value in FileStorage.__objects.items():
+                if type(value) == cls:
+                    filtered_objects[key] = value
+            return filtered_objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all().update({obj.__class__.__name__ + '.' + obj.id: obj})
-        print(f"Added {obj.__class__.__name__} with id {obj.id} to storage")
+        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
         """Saves storage dictionary to file"""
-        try:
+        with open(FileStorage.__file_path, 'w') as f:
             temp = {}
-            for key, val in self.all().items():
-                print(f"Converting {key} to dict")
+            temp.update(FileStorage.__objects)
+            for key, val in temp.items():
                 temp[key] = val.to_dict()
-            
-            with open(FileStorage.__file_path, 'w') as f:
-                json.dump(temp, f)
-            print(f"Data saved to {self.__file_path}")
-        except Exception as e:
-            print(f"Error saving data: {str(e)}")
+            json.dump(temp, f)
 
     def reload(self):
         """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+
+        classes = {
+                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'State': State, 'City': City, 'Amenity': Amenity,
+                    'Review': Review
+                  }
         try:
-            if os.path.exists(self.__file_path):
-                with open(self.__file_path, 'r') as f:
-                    temp = json.load(f)
-                    print(f"Loaded {len(temp)} objects from file")
-                    for key, val in temp.items():
-                        obj_cls_name, obj_id = key.split('.')
-                        obj_cls = globals()[obj_cls_name]
-                        obj = obj_cls(**val)
-                        print(val)
-                        self.new(obj)
-                print(f"Data loaded from {self.__file_path}")
-            else:
-                print(f"No file found at {self.__file_path}")
-        except Exception as e:
-            print(f"Error loading data: {str(e)}")
+            temp = {}
+            with open(FileStorage.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    # Include timezone information in the format string
+                    val["created_at"] = datetime.strptime(val["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                    val["updated_at"] = datetime.strptime(val["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                    self.new(eval(val["__class__"])(**val))
+        except FileNotFoundError:
+            pass
 
     def delete(self, obj=None):
         """Deletes an object from the storage dictionary"""
@@ -58,7 +66,4 @@ class FileStorage:
             key = "{}.{}".format(type(obj).__name__, obj.id)
             if key in self.__objects:
                 del self.__objects[key]
-                print(f"Deleted {key} from storage")
                 self.save()
-
-#models.storage = FileStorage()
