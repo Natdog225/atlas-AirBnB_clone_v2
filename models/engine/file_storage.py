@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 
-
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
     __file_path = 'file.json'
@@ -16,20 +15,20 @@ class FileStorage:
         else:
             filtered_objects = {}
             for key, value in FileStorage.__objects.items():
-                if type(value) == cls:
+                if isinstance(value, cls):
                     filtered_objects[key] = value
             return filtered_objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        self.all().update({obj.__class__.__name__ + '.' + obj.id: obj})
+        self.save()
 
     def save(self):
         """Saves storage dictionary to file"""
         with open(FileStorage.__file_path, 'w') as f:
             temp = {}
-            temp.update(FileStorage.__objects)
-            for key, val in temp.items():
+            for key, val in self.all().items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
 
@@ -53,10 +52,9 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                    # Include timezone information in the format string
-                    val["created_at"] = datetime.strptime(val["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-                    val["updated_at"] = datetime.strptime(val["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-                    self.new(eval(val["__class__"])(**val))
+                    obj_cls = classes[val['__class__']]
+                    obj = obj_cls(**val)
+                    self.new(obj)
         except FileNotFoundError:
             pass
 
