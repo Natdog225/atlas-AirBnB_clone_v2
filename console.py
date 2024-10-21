@@ -40,8 +40,10 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return False
         instance = eval(args[0])()
+        storage[args[0]] = instance
         instance.save()
         print(instance.id)
+
 
     def do_show(self, arg):
         """Prints the string representation of an instance based on the class name and id."""
@@ -54,13 +56,14 @@ class HBNBCommand(cmd.Cmd):
             return False
         try:
             obj_cls_str, obj_id = args[0], args[1]
-            obj_cls = eval(obj_cls_str)
-            storage = storage.all()
-            obj_key = f"{obj_cls_str}.{obj_id}"
-            if obj_key not in storage:
+            if obj_cls_str not in storage:
                 print("** no instance found **")
                 return
-            obj = storage[obj_key]
+            obj_key = f"{obj_cls_str}.{obj_id}"
+            if obj_key not in storage[obj_cls_str]:
+                print("** no instance found **")
+                return
+            obj = storage[obj_cls_str][obj_id]
             print(str(obj))
         except Exception as e:
             print(f"Error: {str(e)}")
@@ -79,28 +82,28 @@ class HBNBCommand(cmd.Cmd):
             return False
         try:
             obj_cls_str, obj_id = args[0], args[1]
-            obj_cls = eval(obj_cls_str)
-            storage = storage.all()
-            obj_key = f"{obj_cls_str}.{obj_id}"
-            if obj_key not in storage:
+            if obj_cls_str not in storage:
                 print("** no instance found **")
                 return
-            del storage[obj_key]
-            storage.save()
+            obj_key = f"{obj_cls_str}.{obj_id}"
+            if obj_key not in storage[obj_cls_str]:
+                print("** no instance found **")
+                return
+            del storage[obj_cls_str][obj_id]
+            storage[obj_cls_str].sort(key=lambda x: int(x.split('.')[-1]))
         except Exception as e:
             print(f"Error: {str(e)}")
 
     def do_all(self, arg):
         """Prints all string representation of all instances based or not on the class name."""
         args = shlex.split(arg)
-        objects = storage.all()
         if len(args) > 0 and args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
             print("** class doesn't exist **")
             return False
         elif len(args) > 0:
-            print([str(obj) for obj in objects.values() if type(obj).__name__ == args[0]])
+            print([str(obj) for obj in storage.get(args[0], [])])
         else:
-            print([str(obj) for obj in objects.values()])
+            print([str(obj) for obj in storage.values()])
 
     def default(self, arg):
         """Default behavior for unknown commands"""

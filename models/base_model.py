@@ -45,11 +45,10 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
-        self.updated_at = datetime.now(timezone.utc)
-        import models
-        #print(f"Saving {type(self).__name__} with id {self.id}")
-        models.storage.new(self)
-        models.storage.save()
+        cls_name = self.__class__.__name__
+        if cls_name not in storage:
+            storage[cls_name] = []
+            storage[cls_name].append(self.to_dict())
         
     def to_dict(self):
         """Convert instance into dict format"""
