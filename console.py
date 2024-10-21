@@ -40,7 +40,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return False
         instance = eval(args[0])()
-        storage[args[0]] = instance
+        storage.new(instance)
         instance.save()
         print(instance.id)
 
