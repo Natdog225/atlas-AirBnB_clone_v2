@@ -46,9 +46,9 @@ class BaseModel:
         """Updates updated_at with current time when instance is changed"""
         import models
         cls_name = self.__class__.__name__
-        if cls_name not in storage:
-            storage[cls_name] = []
-            storage[cls_name].append(self.to_dict())
+        if cls_name not in storage.all():
+            storage.all()[cls_name] = []
+            storage.all()[cls_name].append(self.to_dict())
         
     def to_dict(self):
         """Convert instance into dict format"""
