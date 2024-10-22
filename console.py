@@ -2,21 +2,19 @@
 """This module defines the entry point of the command interpreter"""
 import cmd
 from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
+import models
 import shlex
 import re
 import json
 import ast
 from models import storage
 
+# Remove direct imports of User, State, City, Amenity, Place, Review
+# Instead, use dynamic imports when needed
+
 
 class HBNBCommand(cmd.Cmd):
-    prompt = '(hbnb) '
+    prompt = "(hbnb) "
 
     def do_quit(self, arg):
         """Quit command to exit the program"""
@@ -31,44 +29,61 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, arg):
-        """Create a new instance of a class, saves it (to the JSON file) and prints the id."""
-        args = shlex.split(arg)
-    
-        if len(args) == 0:
-            print("** class name missing **")
-            return False
+        """Create a new instance of a class"""
 
-        cls_name = args[0]
-        if cls_name not in ["User", "State", "City", "Amenity", "Place", "Review"]:
-            print("** class doesn't exist **")
-            return False
+    aargs = shlex.split(arg)
+    if len(args) == 0:
+        print("** class name missing **")
+        return False
 
-        # Parse arguments
-        kwargs = {}
-        for param in args[1:]:
-            try:
-                key, value = param.split('=', 1)
-                
-                # Handle string values
-                if value.startswith('"') and value.endswith('"'):
-                    value = value.strip('"').replace('\\', '').replace('_', ' ')
-                
-                # Convert to appropriate type
-                if '.' in value:
-                    value = float(value)
-                elif value.isdigit():
-                    value = int(value)
-                
-                kwargs[key] = value
-            except ValueError:
-                continue  # Skip invalid parameters
+    cls_name = args[0]
+    if cls_name not in [
+        "BaseModel",
+        "User",
+        "State",
+        "City",
+        "Amenity",
+        "Place",
+        "Review",
+    ]:
+        print("** class doesn't exist **")
+        return False
 
-        # Create instance with parsed arguments
-        instance = globals()[cls_name](**kwargs)
-        storage.new(instance)
-        instance.save()
-        print(instance.id)
+    # Use the classes dictionary instead of dynamic import
+    classes = {
+        "BaseModel": BaseModel,
+        "User": User,
+        "State": State,
+        "City": City,
+        "Amenity": Amenity,
+        "Place": Place,
+        "Review": Review,
+    }
 
+    kwargs = {}
+    for param in args[1:]:
+        try:
+            key, value = param.split("=", 1)
+
+            # Handle string values
+            if value.startswith('"') and value.endswith('"'):
+                value = value.strip('"').replace("\\", "").replace("_", " ")
+
+            # Convert to appropriate type
+            if "." in value:
+                value = float(value)
+            elif value.isdigit():
+                value = int(value)
+
+            kwargs[key] = value
+        except ValueError:
+            continue  # Skip invalid parameters
+
+    # Create instance with parsed arguments
+    instance = classes[cls_name](**kwargs)
+    storage.new(instance)
+    instance.save()
+    print(instance.id)
 
     def do_show(self, arg):
         """Prints the string representation of an instance based on the class name and id."""
@@ -115,14 +130,21 @@ class HBNBCommand(cmd.Cmd):
                 print("** no instance found **")
                 return
             del storage[obj_cls_str][obj_id]
-            storage[obj_cls_str].sort(key=lambda x: int(x.split('.')[-1]))
+            storage[obj_cls_str].sort(key=lambda x: int(x.split(".")[-1]))
         except Exception as e:
             print(f"Error: {str(e)}")
 
     def do_all(self, arg):
         """Prints all string representation of all instances based or not on the class name."""
         args = shlex.split(arg)
-        if len(args) > 0 and args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
+        if len(args) > 0 and args[0] not in [
+            "User",
+            "State",
+            "City",
+            "Amenity",
+            "Place",
+            "Review",
+        ]:
             print("** class doesn't exist **")
             return False
         elif len(args) > 0:
@@ -134,9 +156,9 @@ class HBNBCommand(cmd.Cmd):
     def default(self, arg):
         """Default behavior for unknown commands"""
         try:
-            func_name, args = arg.split('.', 1)
-            if func_name in ['create', 'show', 'destroy']:
-                getattr(self, f'do_{func_name}')(args)
+            func_name, args = arg.split(".", 1)
+            if func_name in ["create", "show", "destroy"]:
+                getattr(self, f"do_{func_name}")(args)
             else:
                 raise AttributeError
         except ValueError:
@@ -144,11 +166,13 @@ class HBNBCommand(cmd.Cmd):
         except AttributeError:
             print(f"*** Unknown command: {arg}")
 
+
 def try_parse(json_str):
     try:
         return ast.literal_eval(json_str)
     except ValueError:
         return json_str
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     HBNBCommand().cmdloop()

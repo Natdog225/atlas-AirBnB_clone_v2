@@ -40,12 +40,13 @@ class FileStorage:
             print(f"Error saving to file: {str(e)}")
 
     def reload(self):
-        """Loads storage dictionary from file"""
         try:
             with open(self.file_path, 'r') as f:
                 temp = json.load(f)
             for key, val in temp.items():
-                obj_class = eval(key.split('.')[0])
+                obj_class_name = key.split('.')[0]
+                obj_module = __import__(f"models.{obj_class_name.lower()}")
+                obj_class = getattr(obj_module, obj_class_name)
                 obj_id = key.split('.')[-1]
                 obj = obj_class(**val)
                 self.new(obj)
