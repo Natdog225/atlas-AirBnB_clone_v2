@@ -32,6 +32,7 @@ class FileStorage:
             print(f"Data saved to {self.__file_path}")
         except Exception as e:
             #print(f"Error saving data: {str(e)}")
+            pass
 
     def reload(self):
         """Loads storage dictionary from file"""
