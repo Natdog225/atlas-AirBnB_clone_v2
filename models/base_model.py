@@ -6,6 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
 from models import storage
 
+
+Base = declarative_base()
 class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
