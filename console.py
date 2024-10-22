@@ -64,12 +64,12 @@ class HBNBCommand(cmd.Cmd):
             # Convert to appropriate type
             if value.lower() in ['true', 'false']:
                 value = value.lower() == 'true'
-            elif '.' in value and key not in ['city_id', 'user_id', 'state_id']:
+            elif '.' in value:
                 try:
                     value = float(value)
                 except ValueError:
                     pass  # Keep as string if it's not a valid float
-            elif key not in ['city_id', 'user_id', 'state_id']:
+            else:
                 try:
                     value = int(value)
                 except ValueError:
