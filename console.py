@@ -30,26 +30,24 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """Create a new instance of a class"""
+        aargs = shlex.split(arg)
+        if len(args) == 0:
+            print("** class name missing **")
+            return False
 
-    aargs = shlex.split(arg)
-    if len(args) == 0:
-        print("** class name missing **")
-        return False
+        cls_name = args[0]
+        if cls_name not in [
+            "BaseModel",
+            "User",
+            "State",
+            "City",
+            "Amenity",
+            "Place",
+            "Review",
+        ]:
+            print("** class doesn't exist **")
+            return False
 
-    cls_name = args[0]
-    if cls_name not in [
-        "BaseModel",
-        "User",
-        "State",
-        "City",
-        "Amenity",
-        "Place",
-        "Review",
-    ]:
-        print("** class doesn't exist **")
-        return False
-
-    # Use the classes dictionary instead of dynamic import
     classes = {
         "BaseModel": BaseModel,
         "User": User,
@@ -58,7 +56,7 @@ class HBNBCommand(cmd.Cmd):
         "Amenity": Amenity,
         "Place": Place,
         "Review": Review,
-    }
+        }
 
     kwargs = {}
     for param in args[1:]:
