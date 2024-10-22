@@ -14,9 +14,10 @@ class BaseModel:
                 if key != "__class__":
                     setattr(self, key, value)
             if hasattr(self, "created_at") and isinstance(self.created_at, str):
-                self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%d %H:%M:%S.%f")
+                self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+
             if hasattr(self, "updated_at") and isinstance(self.updated_at, str):
-                self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%d %H:%M:%S.%f")
+                self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
