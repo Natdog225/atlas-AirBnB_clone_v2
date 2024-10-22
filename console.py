@@ -81,7 +81,7 @@ class HBNBCommand(cmd.Cmd):
         if instance is None:
             return
         else:
-            print(str(instance))
+            print(instance)
 
     def do_destroy(self, arg):
         'delete instance given by the class name and id'
