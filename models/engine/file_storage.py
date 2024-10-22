@@ -25,12 +25,19 @@ class FileStorage:
         try:
             temp = {}
             for key, val in self.all().items():
-                print(f"Converting {key} to dict")
-                if hasattr(val, 'to_dict'):
-                    temp[key] = val.to_dict()
+                print(f"Processing {key} for saving")
+                if val is not None:
+                    if hasattr(val, 'to_dict'):
+                        dict_repr = val.to_dict()
+                        print(f"Dict representation of {key}: {dict_repr}")
+                        temp[key] = dict_repr
+                    else:
+                        print(f"Warning: Object {key} does not have a to_dict method")
+                        temp[key] = str(val)  # Fallback to string representation
                 else:
-                    print(f"Warning: Object {key} does not have a to_dict method")
-                    temp[key] = str(val)  # Fallback to string representation
+                    print(f"Warning: Skipping {key} as it's None")
+            
+            print(f"Final temp dictionary: {temp}")
             
             with open(self.__file_path, 'w') as f:
                 json.dump(temp, f)
@@ -44,28 +51,33 @@ class FileStorage:
                 print(f"Object attributes: {dir(val) if 'val' in locals() else 'Unknown'}")
 
 
-
     def reload(self):
         """Loads storage dictionary from file"""
         try:
             if os.path.exists(self.__file_path):
                 with open(self.__file_path, 'r') as f:
                     temp = json.load(f)
-                    #print(f"Loaded {len(temp)} objects from file")
+                    print(f"Loaded {len(temp)} objects from file")
                     for key, val in temp.items():
-                        obj_cls_name, obj_id = key.split('.')
-                        #obj_cls = globals()[obj_cls_name]
-                        obj_module = __import__(f"models.{obj_cls_name.lower()}")
-                        obj_cls = getattr(obj_module, obj_cls_name)
-                        obj = obj_cls(**val)
-                        #print(val)
-                        self.new(obj)
-                #print(f"Data loaded from {self.__file_path}")
-            #else:
-                #print(f"No file found at {self.__file_path}")
+                        if val is not None:
+                            try:
+                                obj_cls_name, obj_id = key.split('.')
+                                obj_module = __import__(f"models.{obj_cls_name.lower()}", fromlist=[obj_cls_name])
+                                obj_cls = getattr(obj_module, obj_cls_name)
+                                obj = obj_cls(**val)
+                                self.new(obj)
+                            except (ImportError, AttributeError) as e:
+                                print(f"Error creating object for {key}: {str(e)}")
+                        else:
+                            print(f"Warning: Null value found for key {key}")
+                    print(f"Data loaded from {self.__file_path}")
+            else:
+                print(f"No file found at {self.__file_path}")
+        except json.JSONDecodeError:
+            print(f"Error: Invalid JSON in {self.__file_path}")
         except Exception as e:
-            pass
-            #print(f"Error loading data: {str(e)}")
+            print(f"Error loading data: {str(e)}")
+
 
     def delete(self, obj=None):
         """Deletes an object from the storage dictionary"""
