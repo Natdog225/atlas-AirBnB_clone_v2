@@ -5,6 +5,7 @@ This is the "models" module.
 
 import os
 from models.engine.file_storage import FileStorage
+from models.engine.db_storage import DBStorage
 
 storage_t = os.environ.get('HBNB_TYPE_STORAGE')
 

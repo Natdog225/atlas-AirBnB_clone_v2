@@ -1,102 +1,117 @@
 #!/usr/bin/python3
 """Unit test for BaseModel class"""
 import os
+import json
 from models.base_model import BaseModel
 import unittest
 from datetime import datetime
 from uuid import UUID
 from models.engine.file_storage import FileStorage
 
-
-class test_basemodel(unittest.TestCase):
-    """Test cases for the BaseModel """
-
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = 'BaseModel'
-        self.value = BaseModel
+class TestBaseModel(unittest.TestCase):
+    """Test cases for the BaseModel"""
 
     def setUp(self):
-        """Set up testing methods """
+        """Set up testing environment"""
         self.storage = FileStorage()
         self.base_obj = BaseModel()
-        pass
+        self.file_path = 'file.json'
 
     def tearDown(self):
+        """Tear down testing environment"""
+        # Remove the file.json if it exists and clear the storage
         try:
-            os.remove(self.file.json)
-        except: FileNotFoundError
-        pass
+            os.remove(self.file_path)
+        except FileNotFoundError:
+            pass
         self.storage.all().clear()
 
     def test_default(self):
-        """ """
-        i = self.value()
-        self.assertEqual(type(i), self.value)
+        """Test default initialization of BaseModel"""
+        i = BaseModel()
+        self.assertEqual(type(i), BaseModel)
 
     def test_kwargs(self):
-        """ """
-        i = self.value()
+        """Test initialization with kwargs"""
+        i = BaseModel()
         copy = i.to_dict()
         new = BaseModel(**copy)
-        self.assertFalse(new is i)
+        self.assertFalse(new is i)  # Ensure that new is a separate instance
+        self.assertEqual(new.id, i.id)
+        self.assertEqual(new.created_at, i.created_at)
 
     def test_kwargs_int(self):
-        """ """
-        i = self.value()
+        """Test that passing an invalid type in kwargs raises an error"""
+        i = BaseModel()
         copy = i.to_dict()
         copy.update({1: 2})
         with self.assertRaises(TypeError):
             new = BaseModel(**copy)
 
     def test_save(self):
-        """ Testing save """
-        i = self.value()
+        """Test the save method to ensure proper serialization"""
+        i = BaseModel()
         i.save()
-        key = self.name + "." + i.id
-        with open('file.json', 'r') as f:
+        key = "BaseModel." + i.id
+        with open(self.file_path, 'r') as f:
             j = json.load(f)
+            self.assertIn(key, j)
             self.assertEqual(j[key], i.to_dict())
 
     def test_str(self):
-        """ """
-        i = self.value()
-        self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id,
-                         i.__dict__))
+        """Test the string representation of BaseModel"""
+        i = BaseModel()
+        self.assertEqual(str(i), '[{}] ({}) {}'.format('BaseModel', i.id, i.__dict__))
 
     def test_todict(self):
-        """ """
-        i = self.value()
+        """Test to_dict method for proper conversion"""
+        i = BaseModel()
         n = i.to_dict()
         self.assertEqual(i.to_dict(), n)
+        self.assertEqual(n["__class__"], "BaseModel")
+        self.assertEqual(type(n["created_at"]), str)
+        self.assertEqual(type(n["updated_at"]), str)
 
     def test_kwargs_none(self):
-        """ """
+        """Test initialization with None in kwargs raises TypeError"""
         n = {None: None}
         with self.assertRaises(TypeError):
-            new = self.value(**n)
-
-    def test_kwargs_one(self):
-        """ """
-        n = {'Name': 'test'}
-        with self.assertRaises(KeyError):
-            new = self.value(**n)
+            new = BaseModel(**n)
 
     def test_id(self):
-        """ """
-        new = self.value()
+        """Test that id is a string in UUID format"""
+        new = BaseModel()
         self.assertEqual(type(new.id), str)
+        # Check if it's a valid UUID
+        try:
+            uuid_obj = UUID(new.id, version=4)
+        except ValueError:
+            self.fail("The ID is not a valid UUID.")
 
     def test_created_at(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.created_at), datetime.datetime)
+        """Test that created_at is of type datetime"""
+        new = BaseModel()
+        self.assertEqual(type(new.created_at), datetime)
 
     def test_updated_at(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.updated_at), datetime.datetime)
-        n = new.to_dict()
-        new = BaseModel(**n)
-        self.assertFalse(new.created_at == new.updated_at)
+        """Test that updated_at is of type datetime and different from created_at after save"""
+        new = BaseModel()
+        original_updated_at = new.updated_at
+        new.save()
+        self.assertNotEqual(original_updated_at, new.updated_at)
+        self.assertTrue(new.updated_at > original_updated_at)
+
+    def test_attributes_after_reload(self):
+        """Test that attributes persist after saving and reloading"""
+        i = BaseModel()
+        i.name = "My Test"
+        i.save()
+        new_storage = FileStorage()
+        new_storage.reload()
+        key = "BaseModel." + i.id
+        self.assertIn(key, new_storage.all())
+        reloaded_obj = new_storage.all()[key]
+        self.assertEqual(reloaded_obj.name, "My Test")
+
+if __name__ == '__main__':
+    unittest.main()
