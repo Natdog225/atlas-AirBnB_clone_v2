@@ -32,7 +32,7 @@ class FileStorage:
                 json.dump(temp, f)
             print(f"Data saved to {self.__file_path}")
         except Exception as e:
-            #print(f"Error saving data: {str(e)}")
+            print(f"Error saving data: {str(e)}")
             pass
 
     def reload(self):
