@@ -25,24 +25,54 @@ model_classes = {
 
 
 class HBNBCommand(cmd.Cmd):
-    """ our reimplementation of cmd.Cmd
-    """
+    """ our reimplementation of cmd.Cmd """
     prompt = '(hbnb) '
+    
+    
 
     def do_create(self, arg):
         'creates a new instance of BaseModel'
-        args = arg.split()
+        args = shlex.split(arg)
         if len(args) == 0:
             print("** class name missing **")
             return
         elif args[0] not in model_classes.keys():
             print("** class doesn't exist **")
             return
-        else:
-            model_class = model_classes.get(args[0])
-            new_obj = model_class()
-            new_obj.save()
-            print(new_obj.id)
+        class_name = args[0]
+        kwargs = {}
+
+        # Parse the key=value pairs
+        for param in args[1:]:
+            if "=" not in param:
+                continue
+            
+            key, value = param.split("=", 1)
+            
+            # Handle string values
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace("_", " ").replace('\\"', '"')
+            else:
+                if "." in value:
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        continue
+                else:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        continue
+            
+            # Store the key-value pair
+            kwargs[key] = value
+
+        # Create the instance with the parsed attributes
+        model_class = model_classes.get(class_name)
+        new_obj = model_class(**kwargs)
+        new_obj.save()
+        print(new_obj.id)
+
 
     def do_show(self, args):
         'outputs representation of an instance given the class name and id'
