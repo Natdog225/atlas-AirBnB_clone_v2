@@ -3,12 +3,16 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, String, DateTime
 from models import storage
 
-
 Base = declarative_base()
+
 class BaseModel:
+    id = Column(String(60), primary_key=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
         if not kwargs:
@@ -30,10 +34,6 @@ class BaseModel:
             if "id" not in kwargs:
                 self.id = str(uuid.uuid4())
 
-        storage.new(self)
-
-
-
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
@@ -41,16 +41,15 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
-        import models
         self.updated_at = datetime.now(timezone.utc)
-        models.storage.save()
-        
+        storage.new(self)
+        storage.save()
+
     def to_dict(self):
         """Convert instance into dict format"""
-
         dictionary = self.__dict__.copy()
         dictionary['__class__'] = self.__class__.__name__
-            
+        
         if hasattr(self, 'created_at') and isinstance(self.created_at, datetime):
             dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
         elif 'created_at' not in dictionary:
@@ -60,15 +59,12 @@ class BaseModel:
             dictionary['updated_at'] = self.updated_at.isoformat(timespec='microseconds')
         elif 'updated_at' not in dictionary:
             dictionary['updated_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
-            
+        
         if '_sa_instance_state' in dictionary:
             del dictionary['_sa_instance_state']
 
         return dictionary
 
-
-
     def delete(self):
         """Delete the current instance from the storage"""
-        import models
-        models.storage.delete(self)
+        storage.delete(self)
