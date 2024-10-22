@@ -102,9 +102,10 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return False
         elif len(args) > 0:
-            print([str(obj) for obj in storage.get(args[0], [])])
+            objects = storage.all(args[0])
+            print([str(obj) for obj in objects.values()])
         else:
-            print([str(obj) for obj in storage.values()])
+            print([str(obj) for obj in storage.all().values()])
 
     def default(self, arg):
         """Default behavior for unknown commands"""

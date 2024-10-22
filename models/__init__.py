@@ -3,8 +3,15 @@
 This is the "models" module.
 """
 
-from models.engine.file_storage import FileStorage
+import os
+from .engine.file_storage import FileStorage
+from .engine.db_storage import DBStorage
 
+storage_t = os.environ.get('HBNB_TYPE_STORAGE')
 
-storage = FileStorage()
+if storage_t == 'db':
+    storage = DBStorage()
+else:
+    storage = FileStorage()
+
 storage.reload()
