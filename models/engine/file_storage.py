@@ -30,7 +30,7 @@ class FileStorage:
             with open(FileStorage.__file_path, 'w') as f:
                 json.dump(temp, f)
             print(f"Data saved to {self.__file_path}")
-        #except Exception as e:
+        except Exception as e:
             #print(f"Error saving data: {str(e)}")
 
     def reload(self):
@@ -49,7 +49,7 @@ class FileStorage:
                 #print(f"Data loaded from {self.__file_path}")
             #else:
                 #print(f"No file found at {self.__file_path}")
-        #except Exception as e:
+        except Exception as e:
             #print(f"Error loading data: {str(e)}")
 
     def delete(self, obj=None):
