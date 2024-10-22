@@ -40,6 +40,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] not in model_classes.keys():
             print("** class doesn't exist **")
             return
+        
         class_name = args[0]
         kwargs = {}
 
