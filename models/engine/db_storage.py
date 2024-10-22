@@ -61,10 +61,18 @@ class DBStorage:
     def all(self, cls=None):
         """Query on the current database session"""
         new_dict = {}
-        for clss in classes.values():
-            if cls is None or cls is clss or issubclass(clss, cls):
-                objs = self.__session.query(clss).all()
+        if cls is None:
+            # Query all classes if no class is specified
+            for model in Base.__subclasses__():
+                objs = self.__session.query(model).all()
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     new_dict[key] = obj
-        return (new_dict)
+        else:
+            # Query only the specified class
+            objs = self.__session.query(cls).all()
+            for obj in objs:
+                key = obj.__class__.__name__ + '.' + obj.id
+                new_dict[key] = obj
+        return new_dict
+
