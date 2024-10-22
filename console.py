@@ -4,6 +4,7 @@ which imports and customize the cmd.Cmd class
 """
 
 import cmd
+import shlex
 import models
 from models.base_model import BaseModel
 from models.user import User
