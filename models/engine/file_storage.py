@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class FileStorage:
@@ -58,8 +58,11 @@ class FileStorage:
             print(f"Error reloading from file: {str(e)}")
 
     def delete(self, obj=None):
-        """Deletes an object from the storage dictionary"""
-        if obj:
+        """Deletes obj from __objects if it's inside.
+
+        If obj is equal to None, the method should not do anything.
+        """
+        if obj is not None:
             key = "{}.{}".format(type(obj).__name__, obj.id)
             if key in self.all_objects:
                 del self.all_objects[key]
@@ -68,3 +71,4 @@ class FileStorage:
     def close(self):
         """Closes the FileStorage"""
         self.reload()
+        
