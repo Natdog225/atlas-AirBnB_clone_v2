@@ -51,6 +51,7 @@ class FileStorage:
             #else:
                 #print(f"No file found at {self.__file_path}")
         except Exception as e:
+            pass
             #print(f"Error loading data: {str(e)}")
 
     def delete(self, obj=None):
