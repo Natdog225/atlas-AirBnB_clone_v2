@@ -48,11 +48,21 @@ class HBNBCommand(cmd.Cmd):
                 continue
             
             key, value = param.split("=", 1)
+            print(f"Processing: key={key}, value={value}")  # Debug print
             
             # Handle string values
-            if value.startswith('"') and value.endswith('"'):
-                    value = value[1:-1].replace("_", " ").replace('\\"', '"')
-            elif value.lower() in ['true', 'false']:
+            if (value.startswith('"') and value.endswith('"')) or \
+            (value.startswith("'") and value.endswith("'")):
+                value = value[1:-1]  # Remove quotes
+            
+            # Replace underscores with spaces for string values
+            if isinstance(value, str):
+                value = value.replace("_", " ")
+            
+            print(f"After processing: key={key}, value={value}")  # Debug print
+            
+            # Convert to appropriate type
+            if value.lower() in ['true', 'false']:
                 value = value.lower() == 'true'
             elif '.' in value and key not in ['city_id', 'user_id', 'state_id']:
                 try:
@@ -67,12 +77,17 @@ class HBNBCommand(cmd.Cmd):
             
             # Store the key-value pair
             kwargs[key] = value
+            print(f"Final: key={key}, value={value}")  # Debug print
+
+        print(f"Final kwargs: {kwargs}")  # Debug print
 
         # Create the instance with the parsed attributes
         model_class = model_classes.get(class_name)
         new_obj = model_class(**kwargs)
         new_obj.save()
         print(new_obj.id)
+
+
 
 
     def do_show(self, args):
