@@ -9,21 +9,30 @@ from models import storage
 class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
+        print(f"Initializing {self.__class__.__name__}")
         if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now(timezone.utc)
             self.updated_at = datetime.now(timezone.utc)
+            print(f"Created new instance with id: {self.id}")
         else:
+            print(f"Initializing from kwargs: {kwargs}")
             for key, value in kwargs.items():
-                if key != "__class__":
+                if key not in ['__class__', 'created_at', 'updated_at']:
                     setattr(self, key, value)
             if "created_at" in kwargs:
                 self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            else:
+                self.created_at = datetime.now(timezone.utc)
             if "updated_at" in kwargs:
                 self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            else:
+                self.updated_at = datetime.now(timezone.utc)
             if "id" not in kwargs:
                 self.id = str(uuid.uuid4())
+                print(f"Generated new id: {self.id}")
 
+        print(f"Final attributes: {self.__dict__}")
         storage.new(self)
 
 
@@ -41,9 +50,10 @@ class BaseModel:
         
     def to_dict(self):
         """Convert instance into dict format"""
+        print(f"Converting {self.__class__.__name__} to dict")
         dictionary = self.__dict__.copy()
         dictionary['__class__'] = self.__class__.__name__
-        
+            
         if hasattr(self, 'created_at') and isinstance(self.created_at, datetime):
             dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
         elif 'created_at' not in dictionary:
@@ -54,9 +64,12 @@ class BaseModel:
         elif 'updated_at' not in dictionary:
             dictionary['updated_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
             
-            if '_sa_instance_state' in dictionary:
-                del dictionary['_sa_instance_state']
-                return dictionary
+        if '_sa_instance_state' in dictionary:
+            del dictionary['_sa_instance_state']
+
+        print(f"Dictionary created: {dictionary}")
+        return dictionary
+
 
 
     def delete(self):
