@@ -73,6 +73,7 @@ class HBNBCommand(cmd.Cmd):
         new_obj = model_class(**kwargs)
         new_obj.save()
         print(new_obj.id)
+        sys.stdout.flush()
 
 
     def do_show(self, args):
