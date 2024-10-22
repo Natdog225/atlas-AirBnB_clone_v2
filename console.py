@@ -1,176 +1,174 @@
 #!/usr/bin/python3
-"""This module defines the entry point of the command interpreter"""
-import cmd
-from models.base_model import BaseModel
-import models
-import shlex
-import re
-import json
-import ast
-from models import storage
+""" this is the launch point of our CLI
+which imports and customize the cmd.Cmd class
+"""
 
-# Remove direct imports of User, State, City, Amenity, Place, Review
-# Instead, use dynamic imports when needed
+import cmd
+import models
+from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
+
+model_classes = {
+        'BaseModel': BaseModel,
+        'User': User,
+        'State': State,
+        'City': City,
+        'Place': Place,
+        'Amenity': Amenity,
+        'Review': Review
+        }
 
 
 class HBNBCommand(cmd.Cmd):
-    prompt = "(hbnb) "
-
-    def do_quit(self, arg):
-        """Quit command to exit the program"""
-        return True
-
-    def do_EOF(self, arg):
-        """EOF signal to exit the program"""
-        return True
-
-    def emptyline(self):
-        """Do nothing upon receiving an empty line."""
-        pass
+    """ our reimplementation of cmd.Cmd
+    """
+    prompt = '(hbnb) '
 
     def do_create(self, arg):
-        """Create a new instance of a class"""
-        aargs = shlex.split(arg)
+        'creates a new instance of BaseModel'
+        args = arg.split()
         if len(args) == 0:
             print("** class name missing **")
-            return False
-
-        cls_name = args[0]
-        if cls_name not in [
-            "BaseModel",
-            "User",
-            "State",
-            "City",
-            "Amenity",
-            "Place",
-            "Review",
-        ]:
+            return
+        elif args[0] not in model_classes.keys():
             print("** class doesn't exist **")
-            return False
+            return
+        else:
+            model_class = model_classes.get(args[0])
+            new_obj = model_class()
+            new_obj.save()
+            print(new_obj.id)
 
-    classes = {
-        "BaseModel": BaseModel,
-        "User": User,
-        "State": State,
-        "City": City,
-        "Amenity": Amenity,
-        "Place": Place,
-        "Review": Review,
-        }
-
-    kwargs = {}
-    for param in args[1:]:
-        try:
-            key, value = param.split("=", 1)
-
-            # Handle string values
-            if value.startswith('"') and value.endswith('"'):
-                value = value.strip('"').replace("\\", "").replace("_", " ")
-
-            # Convert to appropriate type
-            if "." in value:
-                value = float(value)
-            elif value.isdigit():
-                value = int(value)
-
-            kwargs[key] = value
-        except ValueError:
-            continue  # Skip invalid parameters
-
-    # Create instance with parsed arguments
-    instance = classes[cls_name](**kwargs)
-    storage.new(instance)
-    instance.save()
-    print(instance.id)
-
-    def do_show(self, arg):
-        """Prints the string representation of an instance based on the class name and id."""
-        args = shlex.split(arg)
-        if len(args) == 0:
-            print("** class name missing **")
-            return False
-        if len(args) == 1:
-            print("** instance id missing **")
-            return False
-        try:
-            obj_cls_str, obj_id = args[0], args[1]
-            if obj_cls_str not in storage:
-                print("** no instance found **")
-                return
-            obj_key = f"{obj_cls_str}.{obj_id}"
-            if obj_key not in storage[obj_cls_str]:
-                print("** no instance found **")
-                return
-            obj = storage[obj_cls_str][obj_id]
-            print(str(obj))
-        except Exception as e:
-            print(f"Error: {str(e)}")
+    def do_show(self, args):
+        'outputs representation of an instance given the class name and id'
+        instance = self.get_instance(args)
+        if instance is None:
+            return
+        else:
+            print(str(instance))
 
     def do_destroy(self, arg):
-        """Deletes an instance based on the class name and id (save the change into the JSON file)."""
-        args = shlex.split(arg)
-        if len(args) == 0:
-            print("** class name missing **")
-            return False
-        if args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
-            print("** class doesn't exist **")
-            return False
-        if len(args) == 1:
-            print("** instance id missing **")
-            return False
-        try:
-            obj_cls_str, obj_id = args[0], args[1]
-            if obj_cls_str not in storage:
-                print("** no instance found **")
-                return
-            obj_key = f"{obj_cls_str}.{obj_id}"
-            if obj_key not in storage[obj_cls_str]:
-                print("** no instance found **")
-                return
-            del storage[obj_cls_str][obj_id]
-            storage[obj_cls_str].sort(key=lambda x: int(x.split(".")[-1]))
-        except Exception as e:
-            print(f"Error: {str(e)}")
-
-    def do_all(self, arg):
-        """Prints all string representation of all instances based or not on the class name."""
-        args = shlex.split(arg)
-        if len(args) > 0 and args[0] not in [
-            "User",
-            "State",
-            "City",
-            "Amenity",
-            "Place",
-            "Review",
-        ]:
-            print("** class doesn't exist **")
-            return False
-        elif len(args) > 0:
-            objects = storage.all(args[0])
-            print([str(obj) for obj in objects.values()])
+        'delete instance given by the class name and id'
+        instance = self.get_instance(arg)
+        if instance is None:
+            return
         else:
-            print([str(obj) for obj in storage.all().values()])
+            key = models.storage.construct_key(instance)
+            models.storage.all().pop(key)
+            models.storage.save()
 
-    def default(self, arg):
-        """Default behavior for unknown commands"""
-        try:
-            func_name, args = arg.split(".", 1)
-            if func_name in ["create", "show", "destroy"]:
-                getattr(self, f"do_{func_name}")(args)
+    def do_all(self, args):
+        """ outputs string representations for every existing
+        instance or for all of a class
+        """
+        obj_list = []
+
+        if not args:
+            for value in models.storage.all().values():
+                obj_list.append(str(value))
+        else:
+            class_given = args.split()
+            class_given = class_given[0]
+            if class_given in model_classes.keys():
+                for key, value in models.storage.all().items():
+                    if key.startswith(class_given):
+                        obj_list.append(str(value))
             else:
-                raise AttributeError
-        except ValueError:
-            print(f"*** Unknown syntax: {arg}")
-        except AttributeError:
-            print(f"*** Unknown command: {arg}")
+                print("** class doesn't exist **")
+                return
+
+        print(obj_list)
+
+    def do_update(self, arg):
+        """ updates the instance given by class_name and id.
+        usage: update <class> <id> <attr> "<val>"
+        """
+
+        instance = self.get_instance(arg)
+        if instance is None:
+            return
+
+        attr_val = self.parse_attributes(arg)
+        if attr_val is None:
+            return
+
+        attr = attr_val[0]
+        value = attr_val[1]
+
+        if hasattr(instance, attr):
+            attr_type = type(getattr(instance, attr))
+
+            try:
+                value = attr_type(value)
+            except (ValueError, TypeError):
+                print("** value given could not be typecast correctly **")
+                value = getattr(instance, attr)
+
+            setattr(instance, attr, value)
+            instance.save()
+        else:
+            print("** no such attribute found **")
+
+    def do_quit(self, arg):
+        'exit this CLI instance hbnb'
+        quit()
+
+    do_EOF = do_quit
+
+    def emptyline(self):
+        pass
+
+    def parse_attributes(self, args):
+        'returns an touple with attribute and value'
+
+        attr = args.split()
+        attr = attr[2] if len(attr) > 2 else None
+        if args.find('"') > 0:
+            value = args.split('"')
+            value = value[1] if len(value) > 1 else None
+        elif args.find("'") > 0:
+            value = args.split("'")
+            value = value[1] if len(value) > 1 else None
+        else:
+            value = args.split()
+            value = value[3] if len(value) > 3 else None
+
+        if attr is None:
+            print('** attribute name missing **')
+            return None
+        elif value is None:
+            print('** value missing **')
+            return None
+        else:
+            return (attr, value)
+
+    def get_instance(self, args):
+        args = args.split()
+        class_name = args[0] if len(args) > 0 else None
+        id_num = args[1] if len(args) > 1 else None
+
+        if class_name is None:
+            print('** class name missing **')
+            return None
+        elif class_name not in model_classes.keys():
+            print("** class doesn't exist **")
+            return None
+        elif id_num is None:
+            print('** instance id missing **')
+            return None
+        else:
+            key = class_name + "." + id_num
+            instance = models.storage.all().get(key)
+            if instance is None:
+                print('** no instance found **')
+                return None
+            return instance
 
 
-def try_parse(json_str):
-    try:
-        return ast.literal_eval(json_str)
-    except ValueError:
-        return json_str
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     HBNBCommand().cmdloop()
