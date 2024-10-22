@@ -3,9 +3,16 @@
 Place class that inherits from BaseModel
 """
 
+from models.amenity import Amenity
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
+
+# Create the association table for the many-to-many relationship
+place_amenity = Table('place_amenity', Base.metadata,
+    Column('place_id', String(60), ForeignKey('places.id'), primary_key=True, nullable=False),
+    Column('amenity_id', String(60), ForeignKey('amenities.id'), primary_key=True, nullable=False)
+)
 
 class Place(BaseModel, Base):
     """
@@ -22,7 +29,8 @@ class Place(BaseModel, Base):
         price_by_night: integer - 0
         latitude: float - 0.0
         longitude: float - 0.0
-        amenity_ids: list - empty list
+        amenities: relationship with Amenity class
+        reviews: relationship with Review class
     """
     __tablename__ = 'places'
     city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
@@ -35,7 +43,7 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, nullable=False, default=0)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-    amenities = relationship("Amenity", secondary="place_amenity", backref="places")
+    amenities = relationship("Amenity", secondary=place_amenity, viewonly=False)
     reviews = relationship("Review", cascade="all, delete-orphan", backref="place")
 
     def __init__(self, *args, **kwargs):
@@ -53,10 +61,25 @@ class Place(BaseModel, Base):
             self.longitude = 0.0
             self.amenity_ids = []
 
-    def __setattr__(self, name, value):
-        """Convert attributes to the correct type"""
-        if name in ['number_rooms', 'number_bathrooms', 'max_guest', 'price_by_night']:
-            value = int(value)
-        elif name in ['latitude', 'longitude']:
-            value = float(value)
-        super().__setattr__(name, value)
+    @property
+    def amenities(self):
+        """
+        Getter for amenities attribute.
+        Returns a list of Amenity instances based on the amenity_ids.
+        """
+        from models import storage
+        amenities = []
+        for amenity_id in self.amenity_ids:
+            amenity = storage.get(Amenity, amenity_id)
+            if amenity:
+                amenities.append(amenity)
+        return amenities
+
+    @amenities.setter
+    def amenities(self, value):
+        """
+        Setter for amenities attribute.
+        Handles appending an Amenity object to the amenity_ids list.
+        """
+        if isinstance(value, Amenity) and value.id not in self.amenity_ids:
+            self.amenity_ids.append(value.id)
