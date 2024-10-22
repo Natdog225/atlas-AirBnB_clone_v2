@@ -64,7 +64,7 @@ class HBNBCommand(cmd.Cmd):
                 continue  # Skip invalid parameters
 
         # Create instance with parsed arguments
-        instance = eval(cls_name)(**kwargs)
+        instance = globals()[cls_name](**kwargs)
         storage.new(instance)
         instance.save()
         print(instance.id)
