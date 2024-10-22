@@ -16,8 +16,13 @@ class Place(BaseModel):
     def __init__(self, *args, **kwargs):
         print(f"Initializing Place")
         super().__init__(*args, **kwargs)
-        if not kwargs:
-            for attr, value in self.__class__.__dict__.items():
-                if not attr.startswith("__") and not callable(getattr(self.__class__, attr)):
-                    setattr(self, attr, value)
+        
+        # Convert attributes to the correct type
+        self.number_rooms = int(getattr(self, 'number_rooms', 0))
+        self.number_bathrooms = int(getattr(self, 'number_bathrooms', 0))
+        self.max_guest = int(getattr(self, 'max_guest', 0))
+        self.price_by_night = int(getattr(self, 'price_by_night', 0))
+        self.latitude = float(getattr(self, 'latitude', 0.0))
+        self.longitude = float(getattr(self, 'longitude', 0.0))
+        
         print(f"Place initialized with attributes: {self.__dict__}")
