@@ -33,15 +33,39 @@ class HBNBCommand(cmd.Cmd):
     def do_create(self, arg):
         """Create a new instance of a class, saves it (to the JSON file) and prints the id."""
         args = shlex.split(arg)
+    
         if len(args) == 0:
             print("** class name missing **")
             return False
-        if args[0] not in ["User", "State", "City", "Amenity", "Place", "Review"]:
+
+        cls_name = args[0]
+        if cls_name not in ["User", "State", "City", "Amenity", "Place", "Review"]:
             print("** class doesn't exist **")
             return False
-        instance = eval(args[0])()
+
+        # Parse arguments
+        kwargs = {}
+        for param in args[1:]:
+            try:
+                key, value = param.split('=', 1)
+                
+                # Handle string values
+                if value.startswith('"') and value.endswith('"'):
+                    value = value.strip('"').replace('\\', '').replace('_', ' ')
+                
+                # Convert to appropriate type
+                if '.' in value:
+                    value = float(value)
+                elif value.isdigit():
+                    value = int(value)
+                
+                kwargs[key] = value
+            except ValueError:
+                continue  # Skip invalid parameters
+
+        # Create instance with parsed arguments
+        instance = eval(cls_name)(**kwargs)
         storage.new(instance)
-        print("Saving instance...")
         instance.save()
         print(instance.id)
 
