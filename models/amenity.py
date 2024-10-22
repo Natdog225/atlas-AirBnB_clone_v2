@@ -1,7 +1,20 @@
 #!/usr/bin/python3
-""" State Module for HBNB project """
+"""
+Amenity class that inherits from BaseModel
+"""
+
 from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
-    name = ""
+    """
+    Amenity class that inherits from BaseModel
+    Public class attributes:
+        name: string - empty string
+    """
+    def __init__(self, *args, **kwargs):
+        if kwargs:
+            super().__init__(*args, **kwargs)
+        else:
+            super().__init__()
+            self.name = ""
