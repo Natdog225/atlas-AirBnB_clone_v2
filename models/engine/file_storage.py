@@ -43,7 +43,9 @@ class FileStorage:
                     #print(f"Loaded {len(temp)} objects from file")
                     for key, val in temp.items():
                         obj_cls_name, obj_id = key.split('.')
-                        obj_cls = globals()[obj_cls_name]
+                        #obj_cls = globals()[obj_cls_name]
+                        obj_module = __import__(f"models.{obj_cls_name.lower()}")
+                        obj_cls = getattr(obj_module, obj_cls_name)
                         obj = obj_cls(**val)
                         #print(val)
                         self.new(obj)
