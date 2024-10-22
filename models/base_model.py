@@ -9,19 +9,21 @@ from models import storage
 class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
-        if kwargs:
-            for key, value in kwargs.items():
-                if key != "__class__":
-                    setattr(self, key, value)
-            if hasattr(self, "created_at") and isinstance(self.created_at, str):
-                self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-
-            if hasattr(self, "updated_at") and isinstance(self.updated_at, str):
-                self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-        else:
+        if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now(timezone.utc)
             self.updated_at = datetime.now(timezone.utc)
+        else:
+            for key, value in kwargs.items():
+                if key != "__class__":
+                    setattr(self, key, value)
+            if "created_at" in kwargs:
+                self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            if "updated_at" in kwargs:
+                self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            if "id" not in kwargs:
+                self.id = str(uuid.uuid4())
+
         storage.new(self)
 
 
