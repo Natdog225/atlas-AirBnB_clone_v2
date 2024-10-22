@@ -26,14 +26,24 @@ class FileStorage:
             temp = {}
             for key, val in self.all().items():
                 print(f"Converting {key} to dict")
-                temp[key] = val.to_dict()
+                if hasattr(val, 'to_dict'):
+                    temp[key] = val.to_dict()
+                else:
+                    print(f"Warning: Object {key} does not have a to_dict method")
+                    temp[key] = str(val)  # Fallback to string representation
             
-            with open(FileStorage.__file_path, 'w') as f:
+            with open(self.__file_path, 'w') as f:
                 json.dump(temp, f)
             print(f"Data saved to {self.__file_path}")
         except Exception as e:
             print(f"Error saving data: {str(e)}")
-            pass
+            print(f"Error type: {type(e).__name__}")
+            if isinstance(e, AttributeError):
+                print(f"AttributeError details:")
+                print(f"Object causing the error: {key if 'key' in locals() else 'Unknown'}")
+                print(f"Object attributes: {dir(val) if 'val' in locals() else 'Unknown'}")
+
+
 
     def reload(self):
         """Loads storage dictionary from file"""

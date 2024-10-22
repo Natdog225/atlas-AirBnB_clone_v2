@@ -42,12 +42,22 @@ class BaseModel:
     def to_dict(self):
         """Convert instance into dict format"""
         dictionary = self.__dict__.copy()
-        dictionary.update({'__class__': self.__class__.__name__})
-        dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
-        dictionary['updated_at'] = self.updated_at.isoformat(timespec='microseconds')
-        if '_sa_instance_state' in dictionary:
-            del dictionary['_sa_instance_state']
-        return dictionary
+        dictionary['__class__'] = self.__class__.__name__
+        
+        if hasattr(self, 'created_at') and isinstance(self.created_at, datetime):
+            dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
+        elif 'created_at' not in dictionary:
+            dictionary['created_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
+
+        if hasattr(self, 'updated_at') and isinstance(self.updated_at, datetime):
+            dictionary['updated_at'] = self.updated_at.isoformat(timespec='microseconds')
+        elif 'updated_at' not in dictionary:
+            dictionary['updated_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
+            
+            if '_sa_instance_state' in dictionary:
+                del dictionary['_sa_instance_state']
+                return dictionary
+
 
     def delete(self):
         """Delete the current instance from the storage"""
