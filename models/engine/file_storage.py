@@ -43,13 +43,13 @@ class FileStorage:
         try:
             with open(self.file_path, 'r') as f:
                 temp = json.load(f)
-            for key, val in temp.items():
-                obj_class_name = key.split('.')[0]
-                obj_module = __import__(f"models.{obj_class_name.lower()}")
-                obj_class = getattr(obj_module, obj_class_name)
-                obj_id = key.split('.')[-1]
-                obj = obj_class(**val)
-                self.new(obj)
+                for key, val in temp.items():
+                    obj_class_name = key.split('.')[0]
+                    obj_module = __import__(f"models.{obj_class_name.lower()}")
+                    obj_class = getattr(obj_module, obj_class_name)
+                    obj_id = key.split('.')[-1]
+                    obj = obj_class(**val)
+                    self.new(obj)
         except FileNotFoundError:
             pass
         except json.JSONDecodeError:
