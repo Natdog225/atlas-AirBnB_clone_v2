@@ -36,6 +36,7 @@ class Place(BaseModel, Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     amenities = relationship("Amenity", secondary="place_amenity", backref="places")
+    reviews = relationship("Review", cascade="all, delete-orphan", backref="place")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

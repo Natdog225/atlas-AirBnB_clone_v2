@@ -17,6 +17,7 @@ class User(BaseModel, Base):
         first_name: string - empty string
         last_name: string - empty string
         places: relationship with Place class
+        reviews: relationship with Review class
     """
     __tablename__ = 'users'
     email = Column(String(128), nullable=False)
@@ -24,6 +25,7 @@ class User(BaseModel, Base):
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
     places = relationship("Place", cascade="all, delete-orphan", backref="user")
+    reviews = relationship("Review", cascade="all, delete-orphan", backref="user")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
