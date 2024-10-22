@@ -3,6 +3,8 @@
 which imports and customize the cmd.Cmd class
 """
 
+
+
 import cmd
 import shlex
 import models
@@ -13,6 +15,10 @@ from models.city import City
 from models.place import Place
 from models.amenity import Amenity
 from models.review import Review
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 model_classes = {
         'BaseModel': BaseModel,
