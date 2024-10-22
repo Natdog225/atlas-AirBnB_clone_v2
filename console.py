@@ -51,7 +51,7 @@ class HBNBCommand(cmd.Cmd):
             
             # Handle string values
             if value.startswith('"') and value.endswith('"'):
-                value = value[1:-1].replace("_", " ").replace('\\"', '"')
+                    value = value[1:-1].replace("_", " ").replace('\\"', '"')
             elif value.lower() in ['true', 'false']:
                 value = value.lower() == 'true'
             elif '.' in value and key not in ['city_id', 'user_id']:
