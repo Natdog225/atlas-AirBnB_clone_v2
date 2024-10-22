@@ -39,10 +39,8 @@ class BaseModel:
         
     def to_dict(self):
         """Convert instance into dict format"""
-        dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
-            (str(type(self)).split('.')[-1]).split('\'')[0]})
+        dictionary = self.__dict__.copy()
+        dictionary.update({'__class__': self.__class__.__name__})
         dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
         dictionary['updated_at'] = self.updated_at.isoformat(timespec='microseconds')
         if '_sa_instance_state' in dictionary:
