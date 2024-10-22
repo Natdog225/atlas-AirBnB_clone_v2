@@ -9,14 +9,11 @@ from models import storage
 class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
-        print(f"Initializing {self.__class__.__name__}")
         if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now(timezone.utc)
             self.updated_at = datetime.now(timezone.utc)
-            print(f"Created new instance with id: {self.id}")
         else:
-            print(f"Initializing from kwargs: {kwargs}")
             for key, value in kwargs.items():
                 if key not in ['__class__', 'created_at', 'updated_at']:
                     setattr(self, key, value)
@@ -30,9 +27,7 @@ class BaseModel:
                 self.updated_at = datetime.now(timezone.utc)
             if "id" not in kwargs:
                 self.id = str(uuid.uuid4())
-                print(f"Generated new id: {self.id}")
 
-        print(f"Final attributes: {self.__dict__}")
         storage.new(self)
 
 
@@ -50,7 +45,7 @@ class BaseModel:
         
     def to_dict(self):
         """Convert instance into dict format"""
-        print(f"Converting {self.__class__.__name__} to dict")
+
         dictionary = self.__dict__.copy()
         dictionary['__class__'] = self.__class__.__name__
             
@@ -67,7 +62,6 @@ class BaseModel:
         if '_sa_instance_state' in dictionary:
             del dictionary['_sa_instance_state']
 
-        print(f"Dictionary created: {dictionary}")
         return dictionary
 
 
