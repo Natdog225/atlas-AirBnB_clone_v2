@@ -28,8 +28,6 @@ model_classes = {
 class HBNBCommand(cmd.Cmd):
     """ our reimplementation of cmd.Cmd """
     prompt = '(hbnb) '
-    
-    
 
     def do_create(self, arg):
         'creates a new instance of BaseModel'
@@ -56,12 +54,12 @@ class HBNBCommand(cmd.Cmd):
                 value = value[1:-1].replace("_", " ").replace('\\"', '"')
             elif value.lower() in ['true', 'false']:
                 value = value.lower() == 'true'
-            elif '.' in value:
+            elif '.' in value and key not in ['city_id', 'user_id']:
                 try:
                     value = float(value)
                 except ValueError:
                     pass  # Keep as string if it's not a valid float
-            else:
+            elif key not in ['city_id', 'user_id']:
                 try:
                     value = int(value)
                 except ValueError:
