@@ -22,17 +22,14 @@ class DBStorage:
             Base.metadata.create_all(self.__engine)
 
     def all(self, cls=None):
-        classes = [User, State, City, Amenity, Place, Review]
         objects = {}
-        if cls:
+        if cls:  # Query for a specific class
             if isinstance(cls, str):
                 cls = eval(cls)
-            query = self.__session.query(cls)
-        else:
-            query = self.__session.query(*classes)
-        for obj in query:
-            key = f"{obj.__class__.__name__}.{obj.id}"
-            objects[key] = obj
+            objects = {f"{obj.__class__.__name__}.{obj.id}": obj for obj in self.__session.query(cls)}
+        else:  # Query all classes individually
+            for cls in [User, State, City, Amenity, Place, Review]:
+                objects.update({f"{obj.__class__.__name__}.{obj.id}": obj for obj in self.__session.query(cls)})
         return objects
 
     def new(self, obj):
@@ -53,3 +50,10 @@ class DBStorage:
 
     def close(self):
         self.__session.close()
+
+    def get(self, cls, id):
+        """Retrieve one object"""
+        if cls and id:
+            obj = self.__session.query(cls).get(id)
+            return obj
+        return None
