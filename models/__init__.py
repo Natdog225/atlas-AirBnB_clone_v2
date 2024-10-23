@@ -1,22 +1,23 @@
-import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from models.base_model import Base
+from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from models.engine.file_storage import FileStorage
-from models.engine.db_storage import DBStorage
+engine_url = f'mysql+pymysql://{getenv("HBNB_MYSQL_USER")}:{getenv("HBNB_MYSQL_PWD")}@{getenv("HBNB_MYSQL_HOST")}/{getenv("HBNB_MYSQL_DB")}'
+engine = create_engine(engine_url, pool_pre_ping=True)
 
-storage_t = os.environ.get('HBNB_TYPE_STORAGE')
-
-if storage_t == 'db':
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+    Session = scoped_session(sessionmaker(bind=engine, expire_on_commit=False))
+    from models.engine.db_storage import DBStorage
     storage = DBStorage()
 else:
+    from models.engine.file_storage import FileStorage
     storage = FileStorage()
 
-storage.reload()
-
-# Import all models AFTER storage is initialized and reloaded
-from models.base_model import BaseModel
+# Import all models here
 from models.user import User
 from models.state import State
 from models.city import City
@@ -24,5 +25,4 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
-import models.storage 
-models.storage.storage = storage
+storage.reload()

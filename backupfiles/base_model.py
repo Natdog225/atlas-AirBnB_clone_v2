@@ -4,17 +4,14 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.orm import declared_attr
+from models import storage
+
 Base = declarative_base()
 
 class BaseModel:
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
     id = Column(String(60), primary_key=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc))
 
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
@@ -43,7 +40,7 @@ class BaseModel:
         return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
 
     def save(self):
-        from models import storage
+        """Updates updated_at with current time when instance is changed"""
         self.updated_at = datetime.now(timezone.utc)
         storage.new(self)
         storage.save()
@@ -69,5 +66,5 @@ class BaseModel:
         return dictionary
 
     def delete(self):
-        from models import storage
+        """Delete the current instance from the storage"""
         storage.delete(self)
