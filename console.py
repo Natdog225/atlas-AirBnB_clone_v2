@@ -17,6 +17,7 @@ from models.amenity import Amenity
 from models.review import Review
 from dotenv import load_dotenv
 import os
+from models import storage
 
 load_dotenv()
 
@@ -35,6 +36,7 @@ class HBNBCommand(cmd.Cmd):
     """ our reimplementation of cmd.Cmd """
     prompt = '(hbnb) '
 
+
     def do_create(self, arg):
         'creates a new instance of BaseModel'
         args = shlex.split(arg)
@@ -44,7 +46,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] not in model_classes.keys():
             print("** class doesn't exist **")
             return
-        
+
         class_name = args[0]
         kwargs = {}
 
@@ -90,7 +92,8 @@ class HBNBCommand(cmd.Cmd):
         # Create the instance with the parsed attributes
         model_class = model_classes.get(class_name)
         new_obj = model_class(**kwargs)
-        new_obj.save()
+        storage.new(new_obj)
+        storage.save()
         print(new_obj.id)
 
 
@@ -168,7 +171,12 @@ class HBNBCommand(cmd.Cmd):
 
     def do_quit(self, arg):
         'exit this CLI instance hbnb'
+        try:
+            print(storage.__engine.url)  # Access __engine through the storage object
+        except AttributeError:
+            print("Error: Could not access database URL.")
         quit()
+
 
     do_EOF = do_quit
 

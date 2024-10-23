@@ -61,25 +61,3 @@ class Place(BaseModel, Base):
             self.longitude = 0.0
             self.amenity_ids = []
 
-    @property
-    def amenities(self):
-        """
-        Getter for amenities attribute.
-        Returns a list of Amenity instances based on the amenity_ids.
-        """
-        from models import storage
-        amenities = []
-        for amenity_id in self.amenity_ids:
-            amenity = storage.get(Amenity, amenity_id)
-            if amenity:
-                amenities.append(amenity)
-        return amenities
-
-    @amenities.setter
-    def amenities(self, value):
-        """
-        Setter for amenities attribute.
-        Handles appending an Amenity object to the amenity_ids list.
-        """
-        if isinstance(value, Amenity) and value.id not in self.amenity_ids:
-            self.amenity_ids.append(value.id)
