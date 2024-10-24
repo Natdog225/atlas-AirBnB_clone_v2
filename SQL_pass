@@ -15,3 +15,7 @@ cat setup_mysql_dev.sql | mysql -hlocalhost -uroot -p
 cat setup_mysql_test.sql | mysql -hlocalhost -uroot -p
 
 it will then prompt for the root password. see above.
+
+need to add to the container. 
+python dotenv
+python pymysql
