@@ -39,63 +39,64 @@ class HBNBCommand(cmd.Cmd):
 
 
     def do_create(self, arg):
-        'creates a new instance of BaseModel'
-        args = shlex.split(arg)
-        if len(args) == 0:
-            print("** class name missing **")
-            return
-        elif args[0] not in model_classes.keys():
-            print("** class doesn't exist **")
-            return
+        """Creates a new instance of BaseModel, saves it, and prints the id.
 
-        class_name = args[0]
-        kwargs = {}
+        Handles missing class names, invalid class names, and missing
+        required attributes.
+        """
+        try:
+            args = shlex.split(arg)
+            if len(args) == 0:
+                print("** Class name missing. **")
+                return
+            class_name = args[0]
+            if class_name not in model_classes.keys():
+                print(f"** Class '{class_name}' not found. **")
+                print("Available classes:", list(model_classes.keys()))
+                return
 
-        # Parse the key=value pairs
-        for param in args[1:]:
-            if "=" not in param:
-                continue
-            
-            key, value = param.split("=", 1)
-            ##print(f"Processing: key={key}, value={value}")  # Debug print
-            
-            # Handle string values
-            if (value.startswith('"') and value.endswith('"')) or \
-            (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]  # Remove quotes
-            
-            # Replace underscores with spaces for string values
-            if isinstance(value, str):
-                value = value.replace("_", " ")
-            
-            ##print(f"After processing: key={key}, value={value}")  # Debug print
-            
-            # Convert to appropriate type
-            if value.lower() in ['true', 'false']:
-                value = value.lower() == 'true'
-            elif '.' in value:
-                try:
-                    value = float(value)
-                except ValueError:
-                    pass  # Keep as string if it's not a valid float
-            else:
-                try:
-                    value = int(value)
-                except ValueError:
-                    pass
-            
-            # Store the key-value pair
-            kwargs[key] = value
-            ##print(f"Final: key={key}, value={value}")  # Debug print
+            kwargs = {}
+            for param in args[1:]:
+                if "=" not in param:
+                    continue
+                key, value = param.split("=", 1)
+                if (value.startswith('"') and value.endswith('"')) or \
+                (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
+                if isinstance(value, str):
+                    value = value.replace("_", " ")
+                if value.lower() in ['true', 'false']:
+                    value = value.lower() == 'true'
+                elif '.' in value:
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        pass
+                else:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        pass
+                kwargs[key] = value
 
-        ##print(f"Final kwargs: {kwargs}")  # Debug print
+            # Additional checks for required attributes
+            if class_name == 'State' and 'name' not in kwargs:
+                print("** State name is required. **")
+                return
+            if class_name == 'City' and ('state_id' not in kwargs or 'name' not in kwargs):
+                print("** City state_id and name are required. **")
+                return
 
-        # Create the instance with the parsed attributes
-        model_class = model_classes.get(class_name)
-        new_obj = model_class(**kwargs)
-        storage.new(new_obj)
-        storage.save()
-        print(new_obj.id)
+            model_class = model_classes.get(class_name)
+            new_obj = model_class(**kwargs)
+            storage.new(new_obj)
+            storage.save()
+            print(new_obj.id)
+
+        except ValueError:
+            print("** Invalid input. Please check the arguments. **")
+        except Exception as e:
+            print(f"** An error occurred: {e} **")
 
 
     def do_show(self, args):
