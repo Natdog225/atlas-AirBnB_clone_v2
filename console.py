@@ -18,6 +18,7 @@ from models.review import Review
 from dotenv import load_dotenv
 import os
 from models import storage
+import sys
 
 load_dotenv()
 
@@ -34,7 +35,7 @@ model_classes = {
 
 class HBNBCommand(cmd.Cmd):
     """ our reimplementation of cmd.Cmd """
-    prompt = '(hbnb) '
+    prompt = '(hbnb) 'if sys.__stdin__.isatty() else ''
 
 
     def do_create(self, arg):
@@ -95,8 +96,6 @@ class HBNBCommand(cmd.Cmd):
         storage.new(new_obj)
         storage.save()
         print(new_obj.id)
-
-
 
 
     def do_show(self, args):
@@ -228,6 +227,66 @@ class HBNBCommand(cmd.Cmd):
                 print('** no instance found **')
                 return None
             return instance
+    
+
+    def preloop(self):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb)')
+
+    def precmd(self, line):
+        """Reformat command line for advanced command syntax.
+
+        Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
+        (Brackets denote optional fields in usage example.)
+        """
+        _cmd = _cls = _id = _args = ''  # initialize line elements
+
+        # scan for general formating - i.e '.', '(', ')'
+        if not ('.' in line and '(' in line and ')' in line):
+            return line
+
+        try:  # parse line left to right
+            pline = line[:]  # parsed line
+
+            # isolate <class name>
+            _cls = pline[:pline.find('.')]
+
+            # isolate and validate <command>
+            _cmd = pline[pline.find('.') + 1:pline.find('(')]
+            if _cmd not in HBNBCommand.dot_cmds:
+                raise Exception
+
+            # if parantheses contain arguments, parse them
+            pline = pline[pline.find('(') + 1:pline.find(')')]
+            if pline:
+                # partition args: (<id>, [<delim>], [<*args>])
+                pline = pline.partition(', ')  # pline convert to tuple
+
+                # isolate _id, stripping quotes
+                _id = pline[0].replace('\"', '')
+
+                # if arguments exist beyond _id
+                pline = pline[2].strip()  # pline is now str
+                if pline:
+                    # check for *args or **kwargs
+                    if pline[0] == '{' and pline[-1] == '}' and type(eval(pline)) == dict:
+                        _args = pline
+                    else:
+                        _args = pline.replace(',', '')
+                        # _args = _args.replace('\"', '')
+                line = ' '.join([_cmd, _cls, _id, _args])
+
+        except Exception:
+            pass
+        finally:
+            return line
+
+    def postcmd(self, stop, line):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb) ', end='')
+        return stop
 
 
 if __name__ == '__main__':
