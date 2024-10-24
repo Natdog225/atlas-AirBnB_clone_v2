@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:latest  # Use the official MySQL image
+    environment:
+      MYSQL_ROOT_PASSWORD: NewPassword123!  # Set the root password
+      MYSQL_DATABASE: hbnb_dev_db  # Create the database
+      MYSQL_USER: hbnb_dev  # Create the user
+      MYSQL_PASSWORD: hbnb_dev_pwd  # Set the user's password
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist database data
+
+  web:
+    build: .  # Build your application image
+    ports:
+      - "5000:5000"  # Expose port 5000
+    environment:
+      HBNB_MYSQL_USER: hbnb_dev
+      HBNB_MYSQL_PWD: hbnb_dev_pwd
+      HBNB_MYSQL_HOST: db  # Connect to the db service
+      HBNB_MYSQL_DB: hbnb_dev_db
+      HBNB_TYPE_STORAGE: db
+    depends_on:
+      - db  # Ensure the db service starts first
+
+volumes:
+  mysql_data:  # Named volume to persist data
