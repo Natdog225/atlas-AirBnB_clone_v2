@@ -19,7 +19,7 @@ RUN mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld
 RUN apt-get -y update
 
 # Install pip packages
-RUN pip3 install mysqlclient flasgger flask flask-cors flask-restful flask-sqlalchemy requests sqlalchemy
+RUN pip3 install mysqlclient flasgger flask flask-cors flask-restful flask-sqlalchemy requests sqlalchemy cryptography python-dotenv pymysql
 # Expose the MySQL port
 EXPOSE 5000
 EXPOSE 5001
