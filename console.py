@@ -170,10 +170,6 @@ class HBNBCommand(cmd.Cmd):
 
     def do_quit(self, arg):
         'exit this CLI instance hbnb'
-        try:
-            print(storage.__engine.url)  # Access __engine through the storage object
-        except AttributeError:
-            print("Error: Could not access database URL.")
         quit()
 
 
