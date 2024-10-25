@@ -155,34 +155,51 @@ class HBNBCommand(cmd.Cmd):
         print(obj_list)
 
     def do_update(self, arg):
-        """ updates the instance given by class_name and id.
-        usage: update <class> <id> <attr> "<val>"
+        """Updates the instance given by class_name and id.
+
+        Usage: update <class> <id> <attr> "<val>"
+
+        Handles missing/invalid class names, missing IDs, missing/invalid
+        attributes, type casting errors, and updating amenities.
         """
+        try:
+            instance = self.get_instance(arg)
+            if instance is None:
+                return
 
-        instance = self.get_instance(arg)
-        if instance is None:
-            return
+            attr_val = self.parse_attributes(arg)
+            if attr_val is None:
+                return
 
-        attr_val = self.parse_attributes(arg)
-        if attr_val is None:
-            return
+            attr = attr_val[0]
+            value = attr_val[1]
 
-        attr = attr_val[0]
-        value = attr_val[1]
+            if hasattr(instance, attr):
+                attr_type = type(getattr(instance, attr))
 
-        if hasattr(instance, attr):
-            attr_type = type(getattr(instance, attr))
+                try:
+                    if attr_type == list:
+                        # Assuming the values are comma-separated
+                        value = [attr_type(item.strip()) for item in value.split(",")]
+                    elif attr == "amenities":  # Special handling for amenities
+                        amenity_ids = arg.split()[3:]  # Get amenity IDs from arguments
+                        amenities = [storage.get(Amenity, amenity_id) for amenity_id in amenity_ids]
+                        setattr(instance, attr, amenities)  # Set the list of Amenity objects
+                        instance.save()
+                        return  # Return after updating amenities
+                    else:
+                        value = attr_type(value)
+                except (ValueError, TypeError):
+                    print("** Value given could not be typecast correctly **")
+                    return
 
-            try:
-                value = attr_type(value)
-            except (ValueError, TypeError):
-                print("** value given could not be typecast correctly **")
-                value = getattr(instance, attr)
+                setattr(instance, attr, value)
+                instance.save()
+            else:
+                print("** No such attribute found **")
 
-            setattr(instance, attr, value)
-            instance.save()
-        else:
-            print("** no such attribute found **")
+        except Exception as e:
+            print(f"** An error occurred: {e} **")
 
     def do_quit(self, arg):
         'exit this CLI instance hbnb'
