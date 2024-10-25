@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 key_values[i] = f"{key}={value}"
 
             kwargs = {}
-            for param in args[1:]:
+            for param in key_values:
                 if "=" not in param:
                     continue
                 key, value = param.split("=", 1)
