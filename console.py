@@ -56,10 +56,10 @@ class HBNBCommand(cmd.Cmd):
                 print(f"** Class '{class_name}' not found. **")
                 print("Available classes:", list(model_classes.keys()))
                 return
-            if class_name == 'State' and 'name' not in args:
+            if class_name == 'State' and 'name' not in kwargs:
                 print("** State name is required. **")
                 return
-            if class_name == 'City' and ('state_id' not in args or 'name' not in args):
+            if class_name == 'City' and ('state_id' not in args or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
             key_values = args[1:] 
