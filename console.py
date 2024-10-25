@@ -7,6 +7,8 @@ which imports and customize the cmd.Cmd class
 
 import cmd
 import shlex
+
+from MySQLdb import IntegrityError
 import models
 from models.base_model import BaseModel
 from models.user import User
@@ -54,6 +56,12 @@ class HBNBCommand(cmd.Cmd):
                 print(f"** Class '{class_name}' not found. **")
                 print("Available classes:", list(model_classes.keys()))
                 return
+            if class_name == 'State' and 'name' not in args:
+                print("** State name is required. **")
+                return
+            if class_name == 'City' and ('state_id' not in args or 'name' not in args):
+                print("** City state_id and name are required. **")
+                return
 
             kwargs = {}
             for param in args[1:]:
@@ -93,9 +101,13 @@ class HBNBCommand(cmd.Cmd):
             storage.save()
             print(new_obj.id)
 
-        except ValueError:
-            print("** Invalid input. Please check the arguments. **")
-        except Exception as e:
+        except IntegrityError as e:  # Catch IntegrityError
+            if "FOREIGN KEY constraint failed" in str(e):
+                print("** Foreign key constraint failed. **")
+                print("Make sure the referenced object exists.")
+            else:
+                print(f"** Database error: {e} **")  # Print other database errors
+        except Exception as e:  # Catch other exceptions
             print(f"** An error occurred: {e} **")
 
 
