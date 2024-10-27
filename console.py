@@ -3,8 +3,6 @@
 which imports and customize the cmd.Cmd class
 """
 
-
-
 import cmd
 import shlex
 
@@ -36,13 +34,12 @@ model_classes = {
 
 
 class HBNBCommand(cmd.Cmd):
-    """ our reimplementation of cmd.Cmd """
+    """ our reimplementation of hbnb """
     prompt = '(hbnb) 'if sys.__stdin__.isatty() else ''
 
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it, and prints the id.
-
         Handles missing class names, invalid class names, and missing
         required attributes.
         """
@@ -97,7 +94,6 @@ class HBNBCommand(cmd.Cmd):
                 print("** City state_id and name are required. **")
                 return
 
-
             model_class = model_classes.get(class_name)
             new_obj = model_class(**kwargs)
             storage.new(new_obj)
@@ -112,7 +108,6 @@ class HBNBCommand(cmd.Cmd):
                 print(f"** Database error: {e} **")  # Print other database errors
         except Exception as e:  # Catch other exceptions
             print(f"** An error occurred: {e} **")
-
 
     def do_show(self, args):
         'outputs representation of an instance given the class name and id'
@@ -212,7 +207,6 @@ class HBNBCommand(cmd.Cmd):
         'exit this CLI instance hbnb'
         quit()
 
-
     do_EOF = do_quit
 
     def emptyline(self):
@@ -263,7 +257,6 @@ class HBNBCommand(cmd.Cmd):
                 print('** no instance found **')
                 return None
             return instance
-    
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -323,7 +316,6 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
         return stop
-
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
