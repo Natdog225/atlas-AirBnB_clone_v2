@@ -182,8 +182,15 @@ class HBNBCommand(cmd.Cmd):
                         # Assuming the values are comma-separated
                         value = [attr_type(item.strip()) for item in value.split(",")]
                     elif attr == "amenities":  # Special handling for amenities
-                        amenity_ids = arg.split()[3:]  # Get amenity IDs from arguments
-                        amenities = [storage.get(Amenity, amenity_id) for amenity_id in amenity_ids]
+                        amenities_part = arg.split(f"{attr} ", 1)[1]
+                        amenity_ids = amenities_part.split(",")
+                        amenities = []
+                        for amenity_id in amenity_ids:
+                            amenity = storage.get(Amenity, amenity_id)
+                            if amenity:
+                                amenities.append(amenity)
+                            else:
+                                print(f"Amenity with ID '{amenity_id}' not found.")
                         setattr(instance, attr, amenities)  # Set the list of Amenity objects
                         instance.save()
                         return  # Return after updating amenities
