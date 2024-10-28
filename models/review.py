@@ -6,6 +6,7 @@ Review class that inherits from BaseModel
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey
 
+
 class Review(BaseModel, Base):
     """
     Review class that inherits from BaseModel and Base
