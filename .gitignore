@@ -136,3 +136,4 @@ cython_debug/
 
 __pycache__/
 *.pyc
+models/__pycache__/place.cpython-310.pyc
