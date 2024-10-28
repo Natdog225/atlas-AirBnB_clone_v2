@@ -11,6 +11,7 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import declared_attr
 Base = declarative_base()
 
+
 class BaseModel(Base):
     """Defines  the base model with common things on all tables"""
     __abstract__ = True
@@ -21,7 +22,9 @@ class BaseModel(Base):
 
     id = Column(String(60), primary_key=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda:
+                        datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc))
 
     def __init__(self, *args, **kwargs):
         """Initiates a new model"""
@@ -34,11 +37,13 @@ class BaseModel(Base):
                 if key not in ['__class__', 'created_at', 'updated_at']:
                     setattr(self, key, value)
             if "created_at" in kwargs:
-                self.created_at = datetime.strptime(kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                self.created_at = datetime.strptime
+                (kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
             else:
                 self.created_at = datetime.now(timezone.utc)
             if "updated_at" in kwargs:
-                self.updated_at = datetime.strptime(kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
+                self.updated_at = datetime.strptime
+                (kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
             else:
                 self.updated_at = datetime.now(timezone.utc)
             if "id" not in kwargs:
@@ -59,17 +64,23 @@ class BaseModel(Base):
         """Convert instance into dict format"""
         dictionary = self.__dict__.copy()
         dictionary['__class__'] = self.__class__.__name__
-        
-        if hasattr(self, 'created_at') and isinstance(self.created_at, datetime):
-            dictionary['created_at'] = self.created_at.isoformat(timespec='microseconds')
-        elif 'created_at' not in dictionary:
-            dictionary['created_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
 
-        if hasattr(self, 'updated_at') and isinstance(self.updated_at, datetime):
-            dictionary['updated_at'] = self.updated_at.isoformat(timespec='microseconds')
+        if hasattr(self, 'created_at') and isinstance(self.created_at,
+                                                      datetime):
+            dictionary['created_at'] =\
+                self.created_at.isoformat(timespec='microseconds')
+        elif 'created_at' not in dictionary:
+            dictionary['created_at'] =\
+                datetime.now(timezone.utc).isoformat(timespec='microseconds')
+
+        if hasattr(self, 'updated_at') and isinstance(self.updated_at,
+                                                      datetime):
+            dictionary['updated_at'] = self.updated_at.isoformat(
+                timespec='microseconds')
         elif 'updated_at' not in dictionary:
-            dictionary['updated_at'] = datetime.now(timezone.utc).isoformat(timespec='microseconds')
-        
+            dictionary['updated_at'] = datetime.now(timezone.utc)\
+                .isoformat(timespec='microseconds')
+
         if '_sa_instance_state' in dictionary:
             del dictionary['_sa_instance_state']
 
