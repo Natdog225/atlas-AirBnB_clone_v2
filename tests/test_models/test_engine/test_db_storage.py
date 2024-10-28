@@ -40,7 +40,8 @@ class TestDBStorageDocs(unittest.TestCase):
         pep8s = pycodestyle.StyleGuide(quiet=True)
         result = pep8s.check_files(['models/engine/db_storage.py'])
         if result.total_errors > 0:
-            print(f"\nPEP8 style errors found in db_storage.py: {result.total_errors}")
+            print(f"\nPEP8 style errors found in db_storage.py:\
+                {result.total_errors}")
             # Log each error without failing the test
             for error in result.get_statistics():
                 print(error)
@@ -52,7 +53,8 @@ class TestDBStorageDocs(unittest.TestCase):
             ['tests/test_models/test_engine/test_db_storage.py']
         )
         if result.total_errors > 0:
-            print(f"\nPEP8 style errors found in test_db_storage.py: {result.total_errors}")
+            print(f"\nPEP8 style errors found in test_db_storage.py:\
+                {result.total_errors}")
             # Log each error without failing the test
             for error in result.get_statistics():
                 print(error)
@@ -89,7 +91,8 @@ class TestDBStorage(unittest.TestCase):
         cls.storage = DBStorage()
         cls.storage.reload()
 
-        # Create dependent objects (User, State, etc.) to prevent foreign key errors
+        # Create dependent objects (User, State, etc.)
+        # to prevent foreign key errors
         cls.new_user = User(email="test@example.com", password="1234")
         cls.new_state = State(name="TestState")
         cls.new_city = City(name="TestCity", state_id=cls.new_state.id)
