@@ -17,6 +17,12 @@ from os import getenv
 
 
 class DBStorage:
+    """Database storage engine for MySQL databases.
+
+    This class manages interactions with the MySQL database using SQLAlchemy.
+    It supports CRUD operations, as well as additional methods for retrieving
+    and counting objects by type.
+    """
     __engine = None
     __session = None
 
