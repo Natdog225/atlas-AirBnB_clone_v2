@@ -69,7 +69,7 @@ class HBNBCommand(cmd.Cmd):
                 if "=" not in param:
                     continue
                 key, value = param.split("=", 1)
-                if (value.startswith('"') and value.endswith('"')) or\
+                if (value.startswith('"') and value.endswith('"')) or \
                     (value.startswith("'") and value.endswith("'")):
                     value = value[1:-1]
                 if isinstance(value, str):
@@ -90,8 +90,8 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'State' and 'name' not in kwargs:
                 print("** State name is required. **")
                 return
-            if class_name == 'City' and ('state_id' \
-                not in kwargs or 'name' not in kwargs):
+            if class_name == 'City' and ('state_id'
+                                         not in kwargs or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
             if class_name == 'Amenity' and 'name' in kwargs:
@@ -184,8 +184,8 @@ class HBNBCommand(cmd.Cmd):
                 try:
                     if attr_type == list:
                         # Assuming the values are comma-separated
-                        value = [attr_type(item.strip())\
-                            for item in value.split(",")]
+                        value = [attr_type(item.strip())
+                                 for item in value.split(",")]
                     elif attr == "amenities":  # for amenities
                         amenities_part = arg.split(f"{attr} ", 1)[1]
                         amenity_ids = amenities_part.split(",")
@@ -195,7 +195,8 @@ class HBNBCommand(cmd.Cmd):
                             if amenity:
                                 amenities.append(amenity)
                             else:
-                                print(f"Amenity with ID '{amenity_id}' not found.")
+                                print(f"Amenity with ID '{amenity_id}
+                                      ' not found.")
                         setattr(instance, attr, amenities)
                         instance.save()
                         return  # Return after updating amenities
@@ -311,7 +312,7 @@ class HBNBCommand(cmd.Cmd):
                     # check for *args or **kwargs
                     if pline[0] == '{' and pline[-1] == '}'\
                         and type(eval(pline)) == dict:
-                        _args = pline
+                            _args = pline
                     else:
                         _args = pline.replace(',', '')
                         # _args = _args.replace('\"', '')
