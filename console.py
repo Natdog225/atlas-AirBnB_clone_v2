@@ -195,7 +195,8 @@ class HBNBCommand(cmd.Cmd):
                             if amenity:
                                 amenities.append(amenity)
                             else:
-                                print(f"Amenity with ID '{amenity_id}' not found.")
+                                print(f"Amenity with ID
+                                      '{amenity_id}' not found.")
                         setattr(instance, attr, amenities)
                         instance.save()
                         return  # Return after updating amenities
