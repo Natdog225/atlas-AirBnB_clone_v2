@@ -11,7 +11,10 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import declared_attr
 Base = declarative_base()
 
-class BaseModel:
+class BaseModel(Base):
+    """Defines  the base model with common things on all tables"""
+    __abstract__ = True
+
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()

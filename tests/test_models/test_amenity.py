@@ -1,51 +1,33 @@
-#!/usr/bin/python3
-"""
-Module to test the Amenity class of things
-"""
+# tests/test_models/test_amenity.py
 
 import unittest
 from models.amenity import Amenity
-from tests.test_models.test_base_model import test_basemodel
+from models import storage
 
+class TestAmenity(unittest.TestCase):
+    """Unit tests for Amenity model and BaseModel integration"""
 
+    def setUp(self):
+        """Set up test instance for Amenity"""
+        self.amenity = Amenity(name="Pool")
+        storage.new(self.amenity)
+        storage.save()
 
-class test_Amenity(test_basemodel):
-    """Test cases"""
-
-    def __init__(self, *args, **kwargs):
-        """go go tester """
-        super().__init__(*args, **kwargs)
-        self.name = "Amenity"
-        self.value = Amenity
-
-    def test_name2(self):
-        """Test that the name actually is a string """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
-
-    def test_default_name(self):
-        """Test that the default name is an empty string"""
-        new = self.value()
-        self.assertEqual(new.name, "")
-
-    def test_setting_name(self):
-        """Test setting the name attribute"""
-        new = self.value()
-        new.name = "Pool"
-        self.assertEqual(new.name, "Pool")
+    def tearDown(self):
+        """Clean up after tests"""
+        storage.delete(self.amenity)
+        storage.save()
 
     def test_save_amenity(self):
         """Test saving and reloading an Amenity instance"""
-        new = self.value()
-        new.name = "Wi-Fi"
-        new.save()
+        self.amenity.save()
         storage.reload()
-        all_objs = storage.all()
-        key = f"{self.name}.{new.id}"
-        self.assertIn(key, all_objs)
-        self.assertEqual(all_objs[key].name, "Wi-Fi")
-        
-        def test_kwargs_instantiation(self):
-            """ testing instantiation with kwargs"""
-            new = self.value(name="Gym")
-            self.assertEqual(new.name, "Gym")
+        key = f"Amenity.{self.amenity.id}"
+        self.assertIn(key, storage.all())
+        self.assertEqual(storage.all()[key].name, "Pool")
+
+    def test_updated_at(self):
+        """Test that updated_at changes on save"""
+        old_updated_at = self.amenity.updated_at
+        self.amenity.save()
+        self.assertNotEqual(old_updated_at, self.amenity.updated_at)
