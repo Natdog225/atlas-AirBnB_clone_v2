@@ -55,7 +55,7 @@ class HBNBCommand(cmd.Cmd):
                 return
             kwargs = {}
 
-            key_values = args[1:] 
+            key_values = args[1:]
             if class_name == 'User':
                 for i, item in enumerate(key_values):
                     if "email=" in item:
@@ -69,8 +69,8 @@ class HBNBCommand(cmd.Cmd):
                 if "=" not in param:
                     continue
                 key, value = param.split("=", 1)
-                if (value.startswith('"') and value.endswith('"')) or \
-                (value.startswith("'") and value.endswith("'")):
+                if (value.startswith('"') and value.endswith('"')) or\
+                    (value.startswith("'") and value.endswith("'")):
                     value = value[1:-1]
                 if isinstance(value, str):
                     value = value.replace("_", " ")
@@ -90,7 +90,8 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'State' and 'name' not in kwargs:
                 print("** State name is required. **")
                 return
-            if class_name == 'City' and ('state_id' not in kwargs or 'name' not in kwargs):
+            if class_name == 'City' and ('state_id' \
+                not in kwargs or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
             if class_name == 'Amenity' and 'name' in kwargs:
@@ -103,7 +104,6 @@ class HBNBCommand(cmd.Cmd):
                     print(new_obj.id)
                 return  # Return after creating multiple amenities
 
-
             model_class = model_classes.get(class_name)
             new_obj = model_class(**kwargs)
             storage.new(new_obj)
@@ -115,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
                 print("** Foreign key constraint failed. **")
                 print("Make sure the referenced object exists.")
             else:
-                print(f"** Database error: {e} **")  # Print other database errors
+                print(f"** Database error: {e} **")
         except Exception as e:  # Catch other exceptions
             print(f"** An error occurred: {e} **")
 
@@ -184,8 +184,9 @@ class HBNBCommand(cmd.Cmd):
                 try:
                     if attr_type == list:
                         # Assuming the values are comma-separated
-                        value = [attr_type(item.strip()) for item in value.split(",")]
-                    elif attr == "amenities":  # Special handling for amenities
+                        value = [attr_type(item.strip())\
+                            for item in value.split(",")]
+                    elif attr == "amenities":  # for amenities
                         amenities_part = arg.split(f"{attr} ", 1)[1]
                         amenity_ids = amenities_part.split(",")
                         amenities = []
@@ -195,7 +196,7 @@ class HBNBCommand(cmd.Cmd):
                                 amenities.append(amenity)
                             else:
                                 print(f"Amenity with ID '{amenity_id}' not found.")
-                        setattr(instance, attr, amenities)  # Set the list of Amenity objects
+                        setattr(instance, attr, amenities)
                         instance.save()
                         return  # Return after updating amenities
                     else:
@@ -308,7 +309,8 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] == '}' and type(eval(pline)) == dict:
+                    if pline[0] == '{' and pline[-1] == '}'\
+                        and type(eval(pline)) == dict:
                         _args = pline
                     else:
                         _args = pline.replace(',', '')
@@ -325,6 +327,7 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
         return stop
+
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
