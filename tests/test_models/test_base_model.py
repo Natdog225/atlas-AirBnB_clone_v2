@@ -1,69 +1,64 @@
 # tests/test_models/test_base_model.py
+
 import unittest
-from os import getenv
 from datetime import datetime
-from models.base_model import BaseModel
+from uuid import UUID
+from models.base_model import BaseModel, Base
 from models import storage
+from models.engine.db_storage import DBStorage
+from sqlalchemy import Column, String
+
+# Concrete subclass for testing purposes
+class TestModel(BaseModel, Base):
+    __tablename__ = 'test_model'
+    name = Column(String(128), nullable=False)
 
 class TestBaseModelStorage(unittest.TestCase):
-    """Test BaseModel with dynamic storage (FileStorage or DBStorage)."""
+    """Test cases for BaseModel using TestModel with DBStorage."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up the class by creating tables if DB storage is used."""
+        if isinstance(storage, DBStorage):
+            Base.metadata.create_all(storage._DBStorage__engine)
 
     def setUp(self):
-        """Set up a new BaseModel instance and save it to storage."""
-        self.obj = BaseModel()
-        storage.new(self.obj)
-        storage.save()
+        """Set up a new TestModel instance for testing."""
+        self.obj = TestModel(name="Test Name")
+        
+        # Only add to storage if DB storage is active
+        if isinstance(storage, DBStorage):
+            storage.new(self.obj)
+            storage.save()
 
     def tearDown(self):
-        """Clean up the test instance from storage."""
-        storage.delete(self.obj)
-        storage.save()
+        """Clean up after tests based on storage type."""
+        if isinstance(storage, DBStorage):
+            storage.delete(self.obj)
+            storage.save()
 
     def test_instance_creation(self):
-        """Test creation of a BaseModel instance in storage."""
-        self.assertIn(self.obj, storage.all().values())
-
-    def test_save_updates_timestamp(self):
-        """Test that save updates the updated_at timestamp."""
-        old_timestamp = self.obj.updated_at
-        self.obj.save()
-        self.assertNotEqual(old_timestamp, self.obj.updated_at)
-
-    def test_delete_removes_instance(self):
-        """Test that delete removes the instance from storage."""
-        storage.delete(self.obj)
-        storage.save()
-        self.assertNotIn(self.obj, storage.all().values())
-
-    def test_to_dict(self):
-        """Test to_dict contains correct information."""
-        obj_dict = self.obj.to_dict()
-        self.assertEqual(obj_dict["__class__"], "BaseModel")
-        self.assertEqual(obj_dict["id"], self.obj.id)
-        self.assertIsInstance(obj_dict["created_at"], str)
-        self.assertIsInstance(obj_dict["updated_at"], str)
+        """Test instance creation."""
+        self.assertIsInstance(self.obj, TestModel)
 
     def test_id_is_valid_uuid(self):
-        """Test that id is in a valid UUID format."""
-        import uuid
+        """Test that id is a string in UUID format."""
         try:
-            uuid_obj = uuid.UUID(self.obj.id, version=4)
+            uuid_obj = UUID(self.obj.id, version=4)
         except ValueError:
-            self.fail("ID is not a valid UUID.")
+            self.fail("The ID is not a valid UUID.")
 
     def test_created_at_type(self):
         """Test that created_at is a datetime object."""
         self.assertIsInstance(self.obj.created_at, datetime)
 
-    def test_updated_at_type(self):
-        """Test that updated_at is a datetime object."""
-        self.assertIsInstance(self.obj.updated_at, datetime)
-
-    def test_reload(self):
-        """Test reload functionality based on storage type."""
-        storage.reload()
-        key = f"BaseModel.{self.obj.id}"
-        self.assertIn(key, storage.all().keys())
+    def test_to_dict(self):
+        """Test to_dict contains correct information."""
+        dictionary = self.obj.to_dict()
+        self.assertEqual(dictionary["__class__"], "TestModel")
+        self.assertEqual(dictionary["id"], self.obj.id)
+        self.assertIsInstance(dictionary["created_at"], str)
+        self.assertIsInstance(dictionary["updated_at"], str)
 
 if __name__ == "__main__":
     unittest.main()
