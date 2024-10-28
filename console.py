@@ -133,7 +133,7 @@ class HBNBCommand(cmd.Cmd):
         if instance is None:
             return
         else:
-            key = models.storage.construct_key(instance)
+            key = "{}.{}".format(type(instance).__name__, instance.id)
             models.storage.all().pop(key)
             models.storage.save()
 
