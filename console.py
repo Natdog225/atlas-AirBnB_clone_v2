@@ -58,6 +58,7 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'City' and ('state_id' not in args or 'name' not in args):
                 print("** City state_id and name are required. **")
                 return
+            kwargs= []
             key_values = args[1:] 
             if class_name == 'User':
                 for i, item in enumerate(key_values):
