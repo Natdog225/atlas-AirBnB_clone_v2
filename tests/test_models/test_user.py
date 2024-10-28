@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 """Unit tests for the User class"""
-from tests.test_models.test_base_model import test_basemodel
-from models.user import User
+
+
+
 import unittest
 
-class TestUser(test_basemodel):
+from tests.test_models import test_base_model
+
+class TestUser(test_base_model):
     """Test cases for the User class"""
 
     def __init__(self, *args, **kwargs):
