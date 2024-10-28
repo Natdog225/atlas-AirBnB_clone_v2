@@ -3,8 +3,6 @@
 which imports and customize the cmd.Cmd class
 """
 
-
-
 import cmd
 import shlex
 
@@ -36,12 +34,11 @@ model_classes = {
 
 
 class HBNBCommand(cmd.Cmd):
-    """ our reimplementation of cmd.Cmd """
+    """ our reimplementation of hbnb """
     prompt = '(hbnb) 'if sys.__stdin__.isatty() else ''
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it, and prints the id.
-
         Handles missing class names, invalid class names, and missing
         required attributes.
         """
@@ -61,18 +58,17 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'City' and ('state_id' not in args or 'name' not in args):
                 print("** City state_id and name are required. **")
                 return
-            key_values = args[1:]
+            key_values = args[1:] 
             if class_name == 'User':
                 for i, item in enumerate(key_values):
                     if "email=" in item:
                         key, value = "email", item.split("email=")[1]
                         key_values[i] = f"{key}={value}"
-            elif "password=" in item:
-                key, value = "password", item.split("password=")[1]
-                key_values[i] = f"{key}={value}"
+                    elif "password=" in item:
+                        key, value = "password", item.split("password=")[1]
+                        key_values[i] = f"{key}={value}"
 
-            kwargs = {}
-            for param in args[1:]:
+            for param in key_values:
                 if "=" not in param:
                     continue
                 key, value = param.split("=", 1)
@@ -94,12 +90,10 @@ class HBNBCommand(cmd.Cmd):
                     except ValueError:
                         pass
                 kwargs[key] = value
-
-            # Additional checks for required attributes
             if class_name == 'State' and 'name' not in kwargs:
                 print("** State name is required. **")
                 return
-            if class_name == 'City' and ('state_id' not in kwargs or 'name' not in kwargs):
+            if class_name == 'City' and ('state_id' not in args or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
 
@@ -159,39 +153,62 @@ class HBNBCommand(cmd.Cmd):
         print(obj_list)
 
     def do_update(self, arg):
-        """ updates the instance given by class_name and id.
-        usage: update <class> <id> <attr> "<val>"
+        """Updates the instance given by class_name and id.
+
+        Usage: update <class> <id> <attr> "<val>"
+
+        Handles missing/invalid class names, missing IDs, missing/invalid
+        attributes, type casting errors, and updating amenities.
         """
+        try:
+            instance = self.get_instance(arg)
+            if instance is None:
+                return
 
-        instance = self.get_instance(arg)
-        if instance is None:
-            return
+            attr_val = self.parse_attributes(arg)
+            if attr_val is None:
+                return
 
-        attr_val = self.parse_attributes(arg)
-        if attr_val is None:
-            return
+            attr = attr_val[0]
+            value = attr_val[1]
 
-        attr = attr_val[0]
-        value = attr_val[1]
+            if hasattr(instance, attr):
+                attr_type = type(getattr(instance, attr))
 
-        if hasattr(instance, attr):
-            attr_type = type(getattr(instance, attr))
+                try:
+                    if attr_type == list:
+                        # Assuming the values are comma-separated
+                        value = [attr_type(item.strip()) for item in value.split(",")]
+                    elif attr == "amenities":  # Special handling for amenities
+                        amenities_part = arg.split(f"{attr} ", 1)[1]
+                        amenity_ids = amenities_part.split(",")
+                        amenities = []
+                        for amenity_id in amenity_ids:
+                            amenity = storage.get(Amenity, amenity_id)
+                            if amenity:
+                                amenities.append(amenity)
+                            else:
+                                print(f"Amenity with ID '{amenity_id}' not found.")
+                        setattr(instance, attr, amenities)  # Set the list of Amenity objects
+                        instance.save()
+                        return  # Return after updating amenities
+                    else:
+                        value = attr_type(value)
+                except (ValueError, TypeError):
+                    print("** Value given could not be typecast correctly **")
+                    return
 
-            try:
-                value = attr_type(value)
-            except (ValueError, TypeError):
-                print("** value given could not be typecast correctly **")
-                value = getattr(instance, attr)
+                setattr(instance, attr, value)
+                instance.save()
+            else:
+                print("** No such attribute found **")
 
-            setattr(instance, attr, value)
-            instance.save()
-        else:
-            print("** no such attribute found **")
+        except Exception as e:
+            print(f"** An error occurred: {e} **")
 
     def do_quit(self, arg):
         'exit this CLI instance hbnb'
         quit()
-
 
     do_EOF = do_quit
 
@@ -243,7 +260,6 @@ class HBNBCommand(cmd.Cmd):
                 print('** no instance found **')
                 return None
             return instance
-    
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -303,7 +319,6 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
         return stop
-
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()
