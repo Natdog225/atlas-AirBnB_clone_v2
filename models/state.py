@@ -8,6 +8,7 @@ from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
+
 class State(BaseModel, Base):
     """
     State class that inherits from BaseModel and Base
@@ -18,10 +19,10 @@ class State(BaseModel, Base):
     """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
-    cities = relationship("City", cascade="all, delete-orphan", backref="state")
+    cities = relationship("City",
+                          cascade="all, delete-orphan", backref="state")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not kwargs:
             self.name = ""
-
