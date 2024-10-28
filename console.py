@@ -133,9 +133,8 @@ class HBNBCommand(cmd.Cmd):
         if instance is None:
             return
         else:
-            key = "{}.{}".format(type(instance).__name__, instance.id)
-            models.storage.all().pop(key)
-            models.storage.save()
+            storage.delete(instance)
+            storage.save()
 
     def do_all(self, args):
         """ outputs string representations for every existing
