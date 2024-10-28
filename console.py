@@ -93,6 +93,15 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'City' and ('state_id' not in kwargs or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
+            if class_name == 'Amenity' and 'name' in kwargs:
+                amenity_names = kwargs['name'].split(", ")
+                for name in amenity_names:
+                    model_class = model_classes.get(class_name)
+                    new_obj = model_class(name=name)
+                    storage.new(new_obj)
+                    storage.save()
+                    print(new_obj.id)
+                return  # Return after creating multiple amenities
 
 
             model_class = model_classes.get(class_name)
