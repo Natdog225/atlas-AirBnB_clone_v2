@@ -70,7 +70,7 @@ class HBNBCommand(cmd.Cmd):
                     continue
                 key, value = param.split("=", 1)
                 if (value.startswith('"') and value.endswith('"')) or \
-                    (value.startswith("'") and value.endswith("'")):
+                        (value.startswith("'") and value.endswith("'")):
                     value = value[1:-1]
                 if isinstance(value, str):
                     value = value.replace("_", " ")
@@ -90,8 +90,8 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'State' and 'name' not in kwargs:
                 print("** State name is required. **")
                 return
-            if class_name == 'City' and ('state_id'
-                                         not in kwargs or 'name' not in kwargs):
+            if class_name == 'City' \
+                    and ('state_id'not in kwargs or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
             if class_name == 'Amenity' and 'name' in kwargs:
@@ -195,8 +195,8 @@ class HBNBCommand(cmd.Cmd):
                             if amenity:
                                 amenities.append(amenity)
                             else:
-                                print(f"Amenity with ID '{amenity_id}
-                                      ' not found.")
+                                print(f"Amenity with ID '
+                                      {amenity_id}' not found.")
                         setattr(instance, attr, amenities)
                         instance.save()
                         return  # Return after updating amenities
@@ -311,8 +311,8 @@ class HBNBCommand(cmd.Cmd):
                 if pline:
                     # check for *args or **kwargs
                     if pline[0] == '{' and pline[-1] == '}'\
-                        and type(eval(pline)) == dict:
-                            _args = pline
+                            and type(eval(pline)) == dict:
+                        _args = pline
                     else:
                         _args = pline.replace(',', '')
                         # _args = _args.replace('\"', '')
