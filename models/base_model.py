@@ -9,13 +9,16 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import declared_attr
+from sqlalchemy.ext.declarative import declarative_base
+
 Base = declarative_base()
 
 
 class BaseModel(Base):
     """Defines  the base model with common things on all tables"""
+    
     __abstract__ = True
-
+    
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
@@ -89,3 +92,10 @@ class BaseModel(Base):
     def delete(self):
         from models import storage
         storage.delete(self)
+
+    def reload(self):
+        """Reload the database session and create tables if they do not exist."""
+        Base.metadata.create_all(self.__engine)  # Ensure tables are created
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()

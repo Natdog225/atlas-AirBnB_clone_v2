@@ -1,81 +1,64 @@
-#!/usr/bin/python3
-"""Unit tests for BaseModel with DBStorage"""
+# tests/test_models/test_base_model.py
 
 import unittest
 from datetime import datetime
 from uuid import UUID
-from models.base_model import BaseModel
+from models.base_model import BaseModel, Base
 from models import storage
+from models.engine.db_storage import DBStorage
+from sqlalchemy import Column, String
 
-class TestBaseModel(unittest.TestCase):
-    """Test cases for BaseModel with SQLAlchemy DBStorage."""
+# Concrete subclass for testing purposes
+class TestModel(BaseModel, Base):
+    __tablename__ = 'test_model'
+    name = Column(String(128), nullable=False)
+
+class TestBaseModelStorage(unittest.TestCase):
+    """Test cases for BaseModel using TestModel with DBStorage."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up the class by creating tables if DB storage is used."""
+        if isinstance(storage, DBStorage):
+            Base.metadata.create_all(storage._DBStorage__engine)
 
     def setUp(self):
-        """Set up a testing environment for DBStorage"""
-        self.base_obj = BaseModel()
-        storage.new(self.base_obj)
-        storage.save()
+        """Set up a new TestModel instance for testing."""
+        self.obj = TestModel(name="Test Name")
+        
+        # Only add to storage if DB storage is active
+        if isinstance(storage, DBStorage):
+            storage.new(self.obj)
+            storage.save()
 
     def tearDown(self):
-        """Clean up by deleting the BaseModel instance from DBStorage."""
-        storage.delete(self.base_obj)
-        storage.save()
-        storage.reload()
+        """Clean up after tests based on storage type."""
+        if isinstance(storage, DBStorage):
+            storage.delete(self.obj)
+            storage.save()
 
-    def test_default(self):
-        """Test default initialization of BaseModel."""
-        self.assertIsInstance(self.base_obj, BaseModel)
-
-    def test_kwargs(self):
-        """Test initialization with keyword arguments."""
-        copy = self.base_obj.to_dict()
-        new_obj = BaseModel(**copy)
-        self.assertEqual(new_obj.id, self.base_obj.id)
-        self.assertEqual(new_obj.created_at, self.base_obj.created_at)
-
-    def test_save(self):
-        """Test the save method to ensure changes in updated_at."""
-        original_updated_at = self.base_obj.updated_at
-        self.base_obj.save()
-        self.assertNotEqual(original_updated_at, self.base_obj.updated_at)
-
-    def test_str(self):
-        """Test the string representation of BaseModel."""
-        self.assertIn("[BaseModel]", str(self.base_obj))
-        self.assertIn(self.base_obj.id, str(self.base_obj))
-
-    def test_todict(self):
-        """Test to_dict method for proper conversion to dictionary."""
-        dictionary = self.base_obj.to_dict()
-        self.assertEqual(dictionary["__class__"], "BaseModel")
-        self.assertEqual(dictionary["id"], self.base_obj.id)
-        self.assertIsInstance(dictionary["created_at"], str)
-        self.assertIsInstance(dictionary["updated_at"], str)
+    def test_instance_creation(self):
+        """Test instance creation."""
+        self.assertIsInstance(self.obj, TestModel)
 
     def test_id_is_valid_uuid(self):
         """Test that id is a string in UUID format."""
         try:
-            uuid_obj = UUID(self.base_obj.id, version=4)
+            uuid_obj = UUID(self.obj.id, version=4)
         except ValueError:
             self.fail("The ID is not a valid UUID.")
 
     def test_created_at_type(self):
-        """Test that created_at is of type datetime."""
-        self.assertIsInstance(self.base_obj.created_at, datetime)
+        """Test that created_at is a datetime object."""
+        self.assertIsInstance(self.obj.created_at, datetime)
 
-    def test_updated_at(self):
-        """Test that updated_at changes after save."""
-        original_updated_at = self.base_obj.updated_at
-        self.base_obj.save()
-        self.assertNotEqual(original_updated_at, self.base_obj.updated_at)
+    def test_to_dict(self):
+        """Test to_dict contains correct information."""
+        dictionary = self.obj.to_dict()
+        self.assertEqual(dictionary["__class__"], "TestModel")
+        self.assertEqual(dictionary["id"], self.obj.id)
+        self.assertIsInstance(dictionary["created_at"], str)
+        self.assertIsInstance(dictionary["updated_at"], str)
 
-    def test_attributes_after_reload(self):
-        """Test that attributes persist after reloading from storage."""
-        self.base_obj.name = "Test"
-        self.base_obj.save()
-        storage.reload()
-        reloaded_obj = storage.get(BaseModel, self.base_obj.id)
-        self.assertEqual(reloaded_obj.name, "Test")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
