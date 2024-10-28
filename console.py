@@ -39,7 +39,6 @@ class HBNBCommand(cmd.Cmd):
     """ our reimplementation of cmd.Cmd """
     prompt = '(hbnb) 'if sys.__stdin__.isatty() else ''
 
-
     def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it, and prints the id.
 
@@ -62,7 +61,7 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'City' and ('state_id' not in args or 'name' not in args):
                 print("** City state_id and name are required. **")
                 return
-            key_values = args[1:] 
+            key_values = args[1:]
             if class_name == 'User':
                 for i, item in enumerate(key_values):
                     if "email=" in item:
@@ -118,7 +117,6 @@ class HBNBCommand(cmd.Cmd):
                 print(f"** Database error: {e} **")  # Print other database errors
         except Exception as e:  # Catch other exceptions
             print(f"** An error occurred: {e} **")
-
 
     def do_show(self, args):
         'outputs representation of an instance given the class name and id'
