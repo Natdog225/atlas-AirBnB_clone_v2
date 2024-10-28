@@ -1,52 +1,56 @@
 #!/usr/bin/python3
 """Unit tests for the City class"""
-from tests.test_models.test_base_model import test_basemodel
-from models.city import City
 import unittest
+from models.city import City
+from models.state import State
+from models import storage
 
-class TestCity(test_basemodel):
+class TestCity(unittest.TestCase):
     """Test cases for the City class"""
 
-    def __init__(self, *args, **kwargs):
-        """Initialize TestCity class"""
-        super().__init__(*args, **kwargs)
-        self.name = "City"
-        self.value = City
+    def setUp(self):
+        """Set up a valid State instance and City instance for testing."""
+        self.state = State(name="California")
+        storage.new(self.state)
+        storage.save()
+        self.city = City(name="Los Angeles", state_id=self.state.id)
+        storage.new(self.city)
+        storage.save()
+
+    def tearDown(self):
+        """Clean up after tests."""
+        storage.delete(self.city)
+        storage.delete(self.state)
+        storage.save()
 
     def test_state_id(self):
-        """Test that state_id is a string"""
-        new = self.value()
-        self.assertTrue(hasattr(new, "state_id"))
-        self.assertEqual(type(new.state_id), str)
-        # Test if `state_id` defaults to an empty string if not set
-        self.assertEqual(new.state_id, "")
+        """Test that state_id is a string."""
+        self.assertTrue(hasattr(self.city, "state_id"))
+        self.assertEqual(type(self.city.state_id), str)
+        self.assertEqual(self.city.state_id, self.state.id)
 
     def test_name(self):
-        """Test that name is a string"""
-        new = self.value()
-        self.assertTrue(hasattr(new, "name"))
-        self.assertEqual(type(new.name), str)
-        # Test if `name` defaults to an empty string if not set
-        self.assertEqual(new.name, "")
+        """Test that name is a string."""
+        self.assertTrue(hasattr(self.city, "name"))
+        self.assertEqual(type(self.city.name), str)
+        self.assertEqual(self.city.name, "Los Angeles")
 
     def test_city_kwargs(self):
-        """Test initialization with kwargs for City"""
-        new = self.value(name="San Francisco", state_id="CA")
-        self.assertEqual(new.name, "San Francisco")
-        self.assertEqual(new.state_id, "CA")
+        """Test initialization with kwargs for City."""
+        new_city = City(name="San Francisco", state_id=self.state.id)
+        self.assertEqual(new_city.name, "San Francisco")
+        self.assertEqual(new_city.state_id, self.state.id)
 
     def test_save_city(self):
-        """Test that City object is saved correctly"""
-        new = self.value(name="Los Angeles", state_id="CA")
-        new.save()
-        self.assertNotEqual(new.created_at, new.updated_at)
+        """Test that City object is saved correctly."""
+        self.city.save()
+        self.assertNotEqual(self.city.created_at, self.city.updated_at)
 
     def test_to_dict_city(self):
-        """Test that City to_dict method includes correct attributes"""
-        new = self.value(name="New York", state_id="NY")
-        city_dict = new.to_dict()
-        self.assertEqual(city_dict["name"], "New York")
-        self.assertEqual(city_dict["state_id"], "NY")
+        """Test that City to_dict method includes correct attributes."""
+        city_dict = self.city.to_dict()
+        self.assertEqual(city_dict["name"], "Los Angeles")
+        self.assertEqual(city_dict["state_id"], self.state.id)
         self.assertEqual(city_dict["__class__"], "City")
 
 if __name__ == '__main__':
