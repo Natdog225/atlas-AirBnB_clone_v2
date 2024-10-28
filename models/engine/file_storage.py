@@ -17,7 +17,8 @@ class FileStorage:
             return FileStorage.__objects
         else:
             filtered_objects = {
-                key: obj for key, obj in FileStorage.__objects.items() if isinstance(obj, cls)
+                key: obj for key, obj in FileStorage.__objects.items()
+                if isinstance(obj, cls)
             }
             return filtered_objects
 
@@ -35,8 +36,8 @@ class FileStorage:
                         dict_repr = val.to_dict()
                         temp[key] = dict_repr
                     else:
-                        temp[key] = str(val)  # Fallback to string representation
-            
+                        temp[key] = str(val)  # Fallback to string
+
             with open(self.__file_path, 'w') as f:
                 json.dump(temp, f)
         except Exception as e:
@@ -53,7 +54,10 @@ class FileStorage:
                         if val is not None:
                             try:
                                 obj_cls_name, obj_id = key.split('.')
-                                obj_module = __import__(f"models.{obj_cls_name.lower()}", fromlist=[obj_cls_name])
+                                obj_module = __import__(f"models.\
+                                    {obj_cls_name.lower()}",
+                                                        fromlist=[obj_cls_name]
+                                                        )
                                 obj_cls = getattr(obj_module, obj_cls_name)
                                 obj = obj_cls(**val)
                                 self.new(obj)
@@ -61,7 +65,6 @@ class FileStorage:
                                 print(f"Error loading object {key}: {e}")
         except Exception as e:
             print(f"Failed to reload objects from {self.__file_path}: {e}")
-
 
     def delete(self, obj=None):
         """Deletes an object from the storage dictionary"""
