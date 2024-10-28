@@ -39,6 +39,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it, and prints the id.
+
         Handles missing class names, invalid class names, and missing
         required attributes.
         """
@@ -52,13 +53,8 @@ class HBNBCommand(cmd.Cmd):
                 print(f"** Class '{class_name}' not found. **")
                 print("Available classes:", list(model_classes.keys()))
                 return
-            if class_name == 'State' and 'name' not in args:
-                print("** State name is required. **")
-                return
-            if class_name == 'City' and ('state_id' not in args or 'name' not in args):
-                print("** City state_id and name are required. **")
-                return
-            kwargs= []
+            kwargs = {}
+
             key_values = args[1:] 
             if class_name == 'User':
                 for i, item in enumerate(key_values):
@@ -97,6 +93,7 @@ class HBNBCommand(cmd.Cmd):
             if class_name == 'City' and ('state_id' not in args or 'name' not in kwargs):
                 print("** City state_id and name are required. **")
                 return
+
 
             model_class = model_classes.get(class_name)
             new_obj = model_class(**kwargs)
