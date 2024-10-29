@@ -101,7 +101,7 @@ class HBNBCommand(cmd.Cmd):
                     storage.new(new_obj)
                     storage.save()
                     print(new_obj.id)
-                return  # Return after creating multiple amenities
+                return
 
             model_class = model_classes.get(class_name)
             new_obj = model_class(**kwargs)
