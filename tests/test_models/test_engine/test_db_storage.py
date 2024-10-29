@@ -16,6 +16,7 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
+from dotenv import load_dotenv
 
 DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
