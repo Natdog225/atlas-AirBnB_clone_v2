@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import declared_attr, sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
