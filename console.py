@@ -39,7 +39,6 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it, and prints the id.
-
         Handles missing class names, invalid class names, and missing
         required attributes.
         """
