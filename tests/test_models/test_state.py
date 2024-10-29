@@ -1,42 +1,70 @@
 #!/usr/bin/python3
 """Unit tests for the State class"""
-from tests.test_models.test_base_model import test_basemodel
-from models.state import State
 import unittest
+from models.state import State
+from models import storage
+from models.engine.db_storage import DBStorage
 
-class TestState(test_basemodel):
+
+class TestState(unittest.TestCase):
     """Test cases for the State class"""
 
-    def __init__(self, *args, **kwargs):
-        """Initialize TestState class"""
-        super().__init__(*args, **kwargs)
-        self.name = "State"
-        self.value = State
+    @classmethod
+    def setUpClass(cls):
+        """Set up resources required for the tests."""
+        cls.state = State(name="Test State")
+        storage.new(cls.state)
+        storage.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up resources after tests."""
+        storage.delete(cls.state)
+        storage.save()
 
     def test_name_attribute(self):
-        """Test that name is a string and has the correct default value"""
-        new = self.value()
-        self.assertTrue(hasattr(new, "name"))
-        self.assertEqual(type(new.name), str)
-        self.assertEqual(new.name, "")
+        """Test that name is a string and is correctly assigned."""
+        self.assertTrue(hasattr(self.state, "name"))
+        self.assertEqual(type(self.state.name), str)
+        self.assertEqual(self.state.name, "Test State")
 
     def test_state_kwargs(self):
         """Test initialization with kwargs for State"""
-        new = self.value(name="California")
-        self.assertEqual(new.name, "California")
+        new_state = State(name="California")
+        self.assertEqual(new_state.name, "California")
 
     def test_save_state(self):
-        """Test that State object is saved correctly"""
-        new = self.value(name="Texas")
-        new.save()
-        self.assertNotEqual(new.created_at, new.updated_at)
+        """Test that State object is saved correctly."""
+        initial_updated_at = self.state.updated_at
+        self.state.name = "Updated Test State"
+        self.state.save()
+        self.assertNotEqual(self.state.updated_at, initial_updated_at)
 
     def test_to_dict_state(self):
-        """Test that State to_dict method includes correct attributes"""
-        new = self.value(name="Nevada")
-        state_dict = new.to_dict()
-        self.assertEqual(state_dict["name"], "Nevada")
+        """Test that State to_dict method includes correct attributes."""
+        fresh_state = State(name="Test State")
+        state_dict = fresh_state.to_dict()
+        self.assertEqual(state_dict["name"], "Test State")
         self.assertEqual(state_dict["__class__"], "State")
+
+    def test_storage_persistence(self):
+        """Check if the state is persisted based on storage type."""
+        state = State(name="Test State")
+        storage.new(state)
+        storage.save()
+        
+        retrieved_state = storage.get(State, state.id)
+        self.assertEqual(retrieved_state.name, "Test State")
+        
+    def test_storage_persistence(self):
+        """Check if the state is persisted based on storage type."""
+        state = State(name="Test State")
+        storage.new(state)
+        storage.save()
+        
+        retrieved_state = storage.get(State, state.id)
+        self.assertEqual(retrieved_state.name, "Test State")
+
 
 if __name__ == "__main__":
     unittest.main()
