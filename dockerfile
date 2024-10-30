@@ -20,11 +20,15 @@ RUN apt-get -y update
 
 # Install pip packages
 RUN pip3 install mysqlclient flasgger flask flask-cors flask-restful flask-sqlalchemy requests sqlalchemy cryptography python-dotenv pymysql
+
+#auto clone the github repo down.
+RUN git clone https://github.com/Natdog225/atlas-AirBnB_clone_v2.git
+
 # Expose the MySQL port
 EXPOSE 5000
 EXPOSE 5001
 
-# AirBnB Clone Environment Variables
+# AirBnB Clone Environment VariablesCMD ["mysqld"]
 ENV HBNB_MYSQL_USER=hbnb_dev
 ENV HBNB_MYSQL_PWD=hbnb_dev_pwd
 ENV HBNB_MYSQL_HOST=localhost
@@ -32,8 +36,9 @@ ENV HBNB_MYSQL_DB=hbnb_dev_db
 ENV HBNB_TYPE_STORAGE=db
 
 
-# start the MySQL service
-CMD [ "service", "mysql", "start" ]
+# Set PYTHONPATH to include /app/atlas-AirBnB_clone_v2
+ENV PYTHONPATH="/app/atlas-AirBnB_clone_v2"
+
 
 # command to create the volume
 # docker volume create hbnb-dev
@@ -49,3 +54,7 @@ CMD [ "service", "mysql", "start" ]
 
 # start the MySQL service
 # service mysql start
+
+# Run the start_up.sh script to start mysql and build the database and users.
+# Run the script inside of the atlas folder.
+# ./start_up.sh
