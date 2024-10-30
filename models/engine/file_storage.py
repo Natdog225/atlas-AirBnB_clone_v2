@@ -36,7 +36,7 @@ class FileStorage:
                         dict_repr = val.to_dict()
                         temp[key] = dict_repr
                     else:
-                        temp[key] = str(val)  # Fallback to string
+                        temp[key] = str(val)
 
             with open(self.__file_path, 'w') as f:
                 json.dump(temp, f)

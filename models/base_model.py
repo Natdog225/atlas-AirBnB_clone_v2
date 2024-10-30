@@ -94,7 +94,7 @@ class BaseModel(Base):
 
     def reload(self):
         """Reload the database session/create tables if they do not exist."""
-        Base.metadata.create_all(self.__engine)  # Ensure tables
+        Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False)
         Session = scoped_session(session_factory)

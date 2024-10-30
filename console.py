@@ -119,7 +119,7 @@ class HBNBCommand(cmd.Cmd):
             print(f"** An error occurred: {e} **")
 
     def do_show(self, args):
-        'outputs representation of an instance given the class name and id'
+        'puts out representation of an instance given the class name and id'
         instance = self.get_instance(args)
         if instance is None:
             return
@@ -127,7 +127,7 @@ class HBNBCommand(cmd.Cmd):
             print(instance)
 
     def do_destroy(self, arg):
-        'delete instance given by the class name and id'
+        'delete instance by the class name and id'
         instance = self.get_instance(arg)
         if instance is None:
             return
@@ -182,10 +182,10 @@ class HBNBCommand(cmd.Cmd):
 
                 try:
                     if attr_type == list:
-                        # Assuming the values are comma-separated
+                        # Assuming values are comma-separated
                         value = [attr_type(item.strip())
                                  for item in value.split(",")]
-                    elif attr == "amenities":  # for amenities
+                    elif attr == "amenities":
                         amenities_part = arg.split(f"{attr} ", 1)[1]
                         amenity_ids = amenities_part.split(",")
                         amenities = []
@@ -291,7 +291,6 @@ class HBNBCommand(cmd.Cmd):
             # isolate <class name>
             _cls = pline[:pline.find('.')]
 
-            # isolate and validate <command>
             _cmd = pline[pline.find('.') + 1:pline.find('(')]
             if _cmd not in HBNBCommand.dot_cmds:
                 raise Exception
@@ -300,13 +299,13 @@ class HBNBCommand(cmd.Cmd):
             pline = pline[pline.find('(') + 1:pline.find(')')]
             if pline:
                 # partition args: (<id>, [<delim>], [<*args>])
-                pline = pline.partition(', ')  # pline convert to tuple
+                pline = pline.partition(', ')
 
                 # isolate _id, stripping quotes
                 _id = pline[0].replace('\"', '')
 
                 # if arguments exist beyond _id
-                pline = pline[2].strip()  # pline is now str
+                pline = pline[2].strip()
                 if pline:
                     # check for *args or **kwargs
                     if pline[0] == '{' and pline[-1] == '}'\

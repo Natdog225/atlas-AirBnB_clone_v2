@@ -39,14 +39,14 @@ class DBStorage:
 
     def all(self, cls=None):
         objects = {}
-        if cls:  # Query for a specific class
+        if cls:  # look for a specific class
             if isinstance(cls, str):
                 cls = eval(cls)
             objects = {
                 f"{obj.__class__.__name__}.{obj.id}": obj
                 for obj in self.__session.query(cls)
             }
-        else:  # Query all classes individually
+        else:  # check all classes individually
             for cls in [User, State, City, Amenity, Place, Review]:
                 objects.update({
                     f"{obj.__class__.__name__}.{obj.id}": obj
