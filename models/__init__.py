@@ -1,17 +1,21 @@
-#!/bin/usr/python3
+#!/usr/bin/python3
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import Base
 from os import getenv
-from dotenv import load_dotenv
 
-load_dotenv()
+# Get environment variables directly (no dotenv)
+HBNB_MYSQL_USER = getenv("HBNB_MYSQL_USER")
+HBNB_MYSQL_PWD = getenv("HBNB_MYSQL_PWD")
+HBNB_MYSQL_HOST = getenv("HBNB_MYSQL_HOST")
+HBNB_MYSQL_DB = getenv("HBNB_MYSQL_DB")
+HBNB_TYPE_STORAGE = getenv("HBNB_TYPE_STORAGE")
 
-engine_url = f'mysql+pymysql://{getenv("HBNB_MYSQL_USER")}:{getenv("HBNB_MYSQL_PWD")}@{getenv("HBNB_MYSQL_HOST")}/{getenv("HBNB_MYSQL_DB")}'
+engine_url = f'mysql+pymysql://{HBNB_MYSQL_USER}:{HBNB_MYSQL_PWD}@{HBNB_MYSQL_HOST}/{HBNB_MYSQL_DB}'
 engine = create_engine(engine_url, pool_pre_ping=True)
 
-if getenv('HBNB_TYPE_STORAGE') == 'db':
+if HBNB_TYPE_STORAGE == 'db':
     Session = scoped_session(sessionmaker(bind=engine, expire_on_commit=False))
     from models.engine.db_storage import DBStorage
     storage = DBStorage()
